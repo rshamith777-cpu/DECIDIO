@@ -163,7 +163,7 @@ export const SimulationDetailScreen: React.FC<SimulationDetailScreenProps> = ({
           </View>
         </View>
 
-        {/* Title Header */}
+        {/* Header: Explore Your Futures */}
         <View style={styles.titleSection}>
           <View style={styles.metaRow}>
             <View style={styles.categoryPill}>
@@ -171,33 +171,40 @@ export const SimulationDetailScreen: React.FC<SimulationDetailScreenProps> = ({
             </View>
             <View style={[styles.statusBadge, currentDecision.status === 'resolved' ? styles.statusBadgeResolved : null]}>
               <Text style={[styles.statusBadgeText, currentDecision.status === 'resolved' ? { color: THEME.colors.accentGreen } : null]}>
-                {currentDecision.status === 'resolved' ? '✓ RESOLVED' : '● SIMULATING'}
+                {currentDecision.status === 'resolved' ? '✓ COMMITTED & RESOLVED' : 'ACTIVE SCENARIOS'}
               </Text>
             </View>
           </View>
 
-          <Text style={styles.title}>{currentDecision.title}</Text>
+          <Text style={styles.screenMainHeading}>Explore Your Futures</Text>
+          <Text style={styles.screenMainSub}>
+            See how different choices could unfold under your current assumptions.
+          </Text>
 
-          <View style={styles.topStatsRow}>
-            <Text style={styles.topStatItem}>
-              💰 <Text style={styles.boldText}>{currentDecision.currency}{Math.round(currentDecision.currentCost).toLocaleString()}</Text>
-            </Text>
-            <Text style={styles.dot}>•</Text>
-            <Text style={styles.topStatItem}>
-              ⏱ <Text style={styles.boldText}>{currentDecision.hoursPerWeek} hrs/wk</Text>
-            </Text>
-            <Text style={styles.dot}>•</Text>
-            <Text style={styles.topStatItem}>
-              📅 <Text style={styles.boldText}>{currentDecision.horizonDays} days</Text>
-            </Text>
-          </View>
+          {/* Decision Target Summary Box */}
+          <GlassCard style={styles.targetDilemmaBox}>
+            <Text style={styles.targetDilemmaTitle}>{currentDecision.title}</Text>
+            <View style={styles.topStatsRow}>
+              <Text style={styles.topStatItem}>
+                Capital: <Text style={styles.boldText}>{currentDecision.currency}{Math.round(currentDecision.currentCost).toLocaleString()}</Text>
+              </Text>
+              <Text style={styles.dot}>·</Text>
+              <Text style={styles.topStatItem}>
+                Time: <Text style={styles.boldText}>{currentDecision.hoursPerWeek}h / week</Text>
+              </Text>
+              <Text style={styles.dot}>·</Text>
+              <Text style={styles.topStatItem}>
+                Horizon: <Text style={styles.boldText}>{currentDecision.horizonDays} days</Text>
+              </Text>
+            </View>
+          </GlassCard>
         </View>
 
         {/* 3 Future Branches Switcher */}
         <View style={styles.futuresSection}>
           <View style={styles.sectionHeaderRow}>
-            <Text style={styles.sectionTitle}>3 BRANCHING FUTURES</Text>
-            <Text style={styles.switchHint}>Tap to switch reality</Text>
+            <Text style={styles.sectionTitle}>3 BRANCHING SCENARIOS</Text>
+            <Text style={styles.switchHint}>Select a branch to explore</Text>
           </View>
 
           <View style={styles.futureTabs}>
@@ -207,10 +214,11 @@ export const SimulationDetailScreen: React.FC<SimulationDetailScreenProps> = ({
                 activeFutureTab === 'optionA' && styles.futureTabAActive,
               ]}
               onPress={() => setActiveFutureTab('optionA')}
+              activeOpacity={0.85}
             >
-              <Text style={styles.futureTabEmoji}>🔵</Text>
+              <Text style={[styles.futureTabCode, { color: THEME.colors.scenarioA }]}>A · COMMIT</Text>
               <Text style={[styles.futureTabText, activeFutureTab === 'optionA' && styles.futureTabTextActive]}>
-                {currentDecision.scenarios.optionA.label}
+                Take action now
               </Text>
             </TouchableOpacity>
 
@@ -220,10 +228,11 @@ export const SimulationDetailScreen: React.FC<SimulationDetailScreenProps> = ({
                 activeFutureTab === 'optionB' && styles.futureTabBActive,
               ]}
               onPress={() => setActiveFutureTab('optionB')}
+              activeOpacity={0.85}
             >
-              <Text style={styles.futureTabEmoji}>🟣</Text>
+              <Text style={[styles.futureTabCode, { color: THEME.colors.scenarioB }]}>B · WAIT</Text>
               <Text style={[styles.futureTabText, activeFutureTab === 'optionB' && styles.futureTabTextActive]}>
-                {currentDecision.scenarios.optionB.label}
+                Gather evidence
               </Text>
             </TouchableOpacity>
 
@@ -233,10 +242,11 @@ export const SimulationDetailScreen: React.FC<SimulationDetailScreenProps> = ({
                 activeFutureTab === 'optionC' && styles.futureTabCActive,
               ]}
               onPress={() => setActiveFutureTab('optionC')}
+              activeOpacity={0.85}
             >
-              <Text style={styles.futureTabEmoji}>🔴</Text>
+              <Text style={[styles.futureTabCode, { color: THEME.colors.scenarioC }]}>C · SKIP</Text>
               <Text style={[styles.futureTabText, activeFutureTab === 'optionC' && styles.futureTabTextActive]}>
-                {currentDecision.scenarios.optionC.label}
+                Redirect energy
               </Text>
             </TouchableOpacity>
           </View>
@@ -246,7 +256,13 @@ export const SimulationDetailScreen: React.FC<SimulationDetailScreenProps> = ({
         </View>
 
         {/* Trade-off Card */}
-        <TradeOffCard tradeOff={currentDecision.tradeOff} />
+        <TradeOffCard
+          tradeOff={currentDecision.tradeOff}
+          cost={currentDecision.currentCost}
+          currency={currentDecision.currency}
+          hoursPerWeek={currentDecision.hoursPerWeek}
+          horizonDays={currentDecision.horizonDays}
+        />
 
         {/* Decision DNA Scorecard */}
         <DecisionDNACard dna={currentDecision.dna} />
@@ -259,10 +275,10 @@ export const SimulationDetailScreen: React.FC<SimulationDetailScreenProps> = ({
           onReset={handleWhatIfReset}
         />
 
-        {/* Retention Timeline Checkpoints */}
+        {/* Retention Timeline Checkpoints / Reality Check */}
         <View style={styles.timelineSection}>
-          <Text style={styles.sectionTitle}>DECISION TIMELINE & ACCOUNTABILITY</Text>
-          <Text style={styles.timelineSub}>Check in as time passes to verify if reality matches the AI simulation.</Text>
+          <Text style={styles.sectionTitle}>REALITY CHECK & TIMELINE</Text>
+          <Text style={styles.timelineSub}>Check in as time passes to compare the expected scenario against what actually happened.</Text>
 
           <View style={styles.timelineChecklist}>
             {currentDecision.timeline.map(chk => (
@@ -270,6 +286,7 @@ export const SimulationDetailScreen: React.FC<SimulationDetailScreenProps> = ({
                 key={chk.id}
                 style={[styles.checkpointRow, chk.isCompleted && styles.checkpointRowCompleted]}
                 onPress={() => handleToggleCheckpoint(chk.id)}
+                activeOpacity={0.8}
               >
                 <View style={[styles.checkbox, chk.isCompleted && styles.checkboxChecked]}>
                   {chk.isCompleted && <Text style={styles.checkmark}>✓</Text>}
@@ -278,7 +295,7 @@ export const SimulationDetailScreen: React.FC<SimulationDetailScreenProps> = ({
                 <View style={styles.chkContent}>
                   <View style={styles.chkHeader}>
                     <Text style={styles.chkLabel}>DAY {chk.day}: {chk.label}</Text>
-                    {chk.isCompleted && <Text style={styles.chkDoneBadge}>COMPLETED</Text>}
+                    {chk.isCompleted && <Text style={styles.chkDoneBadge}>CHECKED IN</Text>}
                   </View>
                   <Text style={styles.chkDesc}>{chk.description}</Text>
                 </View>
@@ -287,9 +304,9 @@ export const SimulationDetailScreen: React.FC<SimulationDetailScreenProps> = ({
           </View>
         </View>
 
-        {/* Resolve Choice Action / Committed Status Card */}
+        {/* Commitment Flow / Committed Status Card */}
         {currentDecision.status === 'resolved' && currentDecision.resolvedOutcome ? (
-          <GlassCard highlight borderColor={THEME.colors.accentGreen} glowColor="rgba(0, 230, 118, 0.25)" style={styles.resolvedCard}>
+          <GlassCard highlight borderColor={THEME.colors.accentGreen} style={styles.resolvedCard}>
             <View style={styles.resolvedHeader}>
               <View style={styles.resolvedBadge}>
                 <Text style={styles.resolvedBadgeText}>🎯 COMMITTED & RESOLVED</Text>
@@ -300,7 +317,7 @@ export const SimulationDetailScreen: React.FC<SimulationDetailScreenProps> = ({
             </View>
 
             <Text style={styles.resolvedChoiceLabel}>
-              Chosen Future Branch:
+              Chosen Path:
             </Text>
             <View style={styles.resolvedBranchPill}>
               <Text style={styles.resolvedBranchText}>
@@ -308,16 +325,16 @@ export const SimulationDetailScreen: React.FC<SimulationDetailScreenProps> = ({
               </Text>
             </View>
 
-            {/* Star Rating */}
+            {/* Confidence / Satisfaction */}
             <View style={styles.ratingRow}>
-              <Text style={styles.ratingLabel}>Satisfaction Rating:</Text>
+              <Text style={styles.ratingLabel}>Confidence Rating:</Text>
               <Text style={styles.stars}>
                 {'★'.repeat(currentDecision.resolvedOutcome.rating)}
                 {'☆'.repeat(Math.max(0, 5 - currentDecision.resolvedOutcome.rating))}
               </Text>
             </View>
 
-            {/* Notes */}
+            {/* Reflection Notes */}
             {currentDecision.resolvedOutcome.notes ? (
               <View style={styles.notesBox}>
                 <Text style={styles.notesText}>"{currentDecision.resolvedOutcome.notes}"</Text>
@@ -330,10 +347,10 @@ export const SimulationDetailScreen: React.FC<SimulationDetailScreenProps> = ({
                 style={styles.editCommitBtn}
                 onPress={() => handleInitiateCommit(currentDecision.resolvedOutcome?.chosenOption || 'optionA')}
               >
-                <Text style={styles.editCommitText}>Update Notes / Rating</Text>
+                <Text style={styles.editCommitText}>Update Reflection</Text>
               </TouchableOpacity>
               <TouchableOpacity style={styles.undoCommitBtn} onPress={handleUndoCommit}>
-                <Text style={styles.undoCommitText}>Revert to Active</Text>
+                <Text style={styles.undoCommitText}>Reopen Simulation</Text>
               </TouchableOpacity>
             </View>
           </GlassCard>
@@ -342,7 +359,7 @@ export const SimulationDetailScreen: React.FC<SimulationDetailScreenProps> = ({
             <View style={styles.resolveHeaderRow}>
               <View>
                 <Text style={styles.sectionTitle}>READY TO COMMIT?</Text>
-                <Text style={styles.resolveSub}>Select which branch you have chosen in real life:</Text>
+                <Text style={styles.resolveSub}>You've explored the alternatives. Which path are you choosing?</Text>
               </View>
               <View style={styles.liveIndicatorDot} />
             </View>
@@ -351,27 +368,30 @@ export const SimulationDetailScreen: React.FC<SimulationDetailScreenProps> = ({
               <TouchableOpacity
                 style={[styles.resolveBtn, { borderColor: THEME.colors.scenarioA }]}
                 onPress={() => handleInitiateCommit('optionA')}
+                activeOpacity={0.8}
               >
                 <Text style={[styles.resolveBtnText, { color: THEME.colors.scenarioA }]}>
-                  🔵 {currentDecision.scenarios.optionA.label} ({currentDecision.scenarios.optionA.actionType})
+                  A · COMMIT ({currentDecision.scenarios.optionA.label})
                 </Text>
               </TouchableOpacity>
 
               <TouchableOpacity
                 style={[styles.resolveBtn, { borderColor: THEME.colors.scenarioB }]}
                 onPress={() => handleInitiateCommit('optionB')}
+                activeOpacity={0.8}
               >
                 <Text style={[styles.resolveBtnText, { color: THEME.colors.scenarioB }]}>
-                  🟣 {currentDecision.scenarios.optionB.label} ({currentDecision.scenarios.optionB.actionType})
+                  B · WAIT ({currentDecision.scenarios.optionB.label})
                 </Text>
               </TouchableOpacity>
 
               <TouchableOpacity
                 style={[styles.resolveBtn, { borderColor: THEME.colors.scenarioC }]}
                 onPress={() => handleInitiateCommit('optionC')}
+                activeOpacity={0.8}
               >
                 <Text style={[styles.resolveBtnText, { color: THEME.colors.scenarioC }]}>
-                  🔴 {currentDecision.scenarios.optionC.label} ({currentDecision.scenarios.optionC.actionType})
+                  C · SKIP ({currentDecision.scenarios.optionC.label})
                 </Text>
               </TouchableOpacity>
             </View>
@@ -533,6 +553,33 @@ const styles = StyleSheet.create({
     fontSize: THEME.typography.sizes.xxl,
     fontWeight: '900',
     lineHeight: 34,
+  },
+  screenMainHeading: {
+    color: THEME.colors.textPrimary,
+    fontSize: THEME.typography.sizes.xxl,
+    fontWeight: '900',
+    letterSpacing: -0.5,
+  },
+  screenMainSub: {
+    color: THEME.colors.textSecondary,
+    fontSize: THEME.typography.sizes.sm,
+    lineHeight: 20,
+    marginBottom: 8,
+  },
+  targetDilemmaBox: {
+    padding: THEME.spacing.md,
+    gap: 6,
+  },
+  targetDilemmaTitle: {
+    color: THEME.colors.textPrimary,
+    fontSize: THEME.typography.sizes.md,
+    fontWeight: '700',
+    lineHeight: 22,
+  },
+  futureTabCode: {
+    fontSize: 10,
+    fontWeight: '800',
+    letterSpacing: 0.5,
   },
   topStatsRow: {
     flexDirection: 'row',

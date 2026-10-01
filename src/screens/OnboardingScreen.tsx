@@ -18,17 +18,17 @@ interface OnboardingScreenProps {
 }
 
 const CATEGORIES = [
-  { id: 'Career', label: '🎓 Career & Jobs', desc: 'Job offers, promotions, pivots' },
-  { id: 'Education', label: '📚 Education & Courses', desc: 'Bootcamps, degrees, skill paths' },
-  { id: 'Purchases', label: '🛒 Tech & Purchases', desc: 'Laptops, gear, major items' },
-  { id: 'Money', label: '💰 Money & Investing', desc: 'Budgeting, risks, capital allocation' },
-  { id: 'Relocation', label: '🏠 Move & Relocation', desc: 'New cities, rent vs home' },
-  { id: 'Fitness', label: '🏃 Fitness & Health', desc: 'Routines, gym memberships, diet' },
+  { id: 'Career', label: 'Career & Jobs', desc: 'Job offers, promotions, startup pivots' },
+  { id: 'Education', label: 'Education & Courses', desc: 'Certifications, bootcamps, master degrees' },
+  { id: 'Purchases', label: 'Purchases & Tech', desc: 'Hardware, software, capital investments' },
+  { id: 'Money', label: 'Money & Capital', desc: 'Budgeting, risk allocation, personal finance' },
+  { id: 'Relocation', label: 'Move & Relocation', desc: 'New cities, rent vs buying, lifestyle' },
+  { id: 'Fitness', label: 'Health & Energy', desc: 'Routines, health commitments, fitness' },
 ];
 
 export const OnboardingScreen: React.FC<OnboardingScreenProps> = ({ onComplete }) => {
   const [step, setStep] = useState<1 | 2>(1);
-  const [name, setName] = useState('Shamith');
+  const [name, setName] = useState('Strategist');
   const [selectedGoals, setSelectedGoals] = useState<string[]>(['Career', 'Education']);
   const [weights, setWeights] = useState({
     money: 7,
@@ -55,7 +55,7 @@ export const OnboardingScreen: React.FC<OnboardingScreenProps> = ({ onComplete }
 
   const handleFinish = async () => {
     const profile: DecisionProfile = {
-      name: name.trim() || 'Explorer',
+      name: name.trim() || 'Strategist',
       primaryGoals: selectedGoals,
       weights,
       hasCompletedOnboarding: true,
@@ -71,13 +71,16 @@ export const OnboardingScreen: React.FC<OnboardingScreenProps> = ({ onComplete }
         {/* Brand Header */}
         <View style={styles.brandHeader}>
           <Text style={styles.logo}>DECIDIO</Text>
-          <Text style={styles.tagline}>Your life. Simulated before you decide.</Text>
+          <Text style={styles.tagline}>Your Life. Simulated Before You Decide.</Text>
+          <Text style={styles.positioning}>
+            Explore the trade-offs behind difficult decisions before you commit your money, time, or momentum.
+          </Text>
         </View>
 
         {step === 1 ? (
           <View style={styles.stepBlock}>
             <View style={styles.stepIndicator}>
-              <Text style={styles.stepIndicatorText}>STEP 1 OF 2 • DECISION PROFILE</Text>
+              <Text style={styles.stepIndicatorText}>STEP 1 OF 2 · DECISION PROFILE</Text>
             </View>
 
             <Text style={styles.questionTitle}>What are you trying to accomplish?</Text>
@@ -86,7 +89,7 @@ export const OnboardingScreen: React.FC<OnboardingScreenProps> = ({ onComplete }
             </Text>
 
             <View style={styles.nameInputContainer}>
-              <Text style={styles.inputLabel}>Your Name</Text>
+              <Text style={styles.inputLabel}>YOUR NAME</Text>
               <TextInput
                 style={styles.nameInput}
                 value={name}
@@ -104,6 +107,7 @@ export const OnboardingScreen: React.FC<OnboardingScreenProps> = ({ onComplete }
                     key={cat.id}
                     style={[styles.catCard, isSelected && styles.catCardSelected]}
                     onPress={() => toggleGoal(cat.id)}
+                    activeOpacity={0.85}
                   >
                     <Text style={[styles.catLabel, isSelected && styles.catLabelSelected]}>
                       {cat.label}
@@ -114,26 +118,26 @@ export const OnboardingScreen: React.FC<OnboardingScreenProps> = ({ onComplete }
               })}
             </View>
 
-            <TouchableOpacity style={styles.nextBtn} onPress={() => setStep(2)}>
+            <TouchableOpacity style={styles.nextBtn} onPress={() => setStep(2)} activeOpacity={0.85}>
               <Text style={styles.nextBtnText}>Continue to Priorities →</Text>
             </TouchableOpacity>
           </View>
         ) : (
           <View style={styles.stepBlock}>
             <View style={styles.stepIndicator}>
-              <Text style={styles.stepIndicatorText}>STEP 2 OF 2 • VALUES & WEIGHTS</Text>
+              <Text style={styles.stepIndicatorText}>STEP 2 OF 2 · VALUES & WEIGHTS</Text>
             </View>
 
-            <Text style={styles.questionTitle}>What matters most to you right now?</Text>
+            <Text style={styles.questionTitle}>What matters most right now?</Text>
             <Text style={styles.questionSubtitle}>
-              Decidio tailors the 3 future branches and trade-offs to your personal decision matrix.
+              DECIDIO tailors scenario impact meters and trade-offs to your personal criteria.
             </Text>
 
-            <GlassCard highlight glowColor={THEME.colors.primaryGlow} style={styles.weightsCard}>
+            <GlassCard style={styles.weightsCard}>
               <WeightRow
                 label="Career Leverage"
                 value={weights.career}
-                sub="Prioritize long term professional upside"
+                sub="Long-term professional trajectory"
                 onDec={() => adjustWeight('career', -1)}
                 onInc={() => adjustWeight('career', 1)}
                 color={THEME.colors.accentGreen}
@@ -142,47 +146,47 @@ export const OnboardingScreen: React.FC<OnboardingScreenProps> = ({ onComplete }
               <WeightRow
                 label="Time Protection"
                 value={weights.time}
-                sub="Guard sleep, weekends, and calendar sanity"
+                sub="Guard sleep, focus, and calendar sanity"
                 onDec={() => adjustWeight('time', -1)}
                 onInc={() => adjustWeight('time', 1)}
-                color={THEME.colors.secondary}
+                color={THEME.colors.accentCyan}
               />
 
               <WeightRow
                 label="Capital Preservation"
                 value={weights.money}
-                sub="Minimize cash burn and protect savings"
+                sub="Minimize cash burn and protect reserves"
                 onDec={() => adjustWeight('money', -1)}
                 onInc={() => adjustWeight('money', 1)}
-                color={THEME.colors.accentAmber}
+                color={THEME.colors.accentViolet}
               />
 
               <WeightRow
                 label="Experience & Learning"
                 value={weights.experience}
-                sub="Value novelty, fun, and new environments"
+                sub="Novelty, skill accumulation, growth"
                 onDec={() => adjustWeight('experience', -1)}
                 onInc={() => adjustWeight('experience', 1)}
-                color={THEME.colors.primaryLight}
+                color={THEME.colors.primaryText}
               />
 
               <WeightRow
                 label="Risk Tolerance"
                 value={weights.riskTolerance}
-                sub="Willingness to take asymmetric bets"
+                sub="Comfort with asymmetric outcome variance"
                 onDec={() => adjustWeight('riskTolerance', -1)}
                 onInc={() => adjustWeight('riskTolerance', 1)}
-                color={THEME.colors.accentPink}
+                color={THEME.colors.scenarioC}
               />
             </GlassCard>
 
             <View style={styles.buttonRow}>
-              <TouchableOpacity style={styles.backBtn} onPress={() => setStep(1)}>
+              <TouchableOpacity style={styles.backBtn} onPress={() => setStep(1)} activeOpacity={0.85}>
                 <Text style={styles.backBtnText}>← Back</Text>
               </TouchableOpacity>
 
-              <TouchableOpacity style={styles.finishBtn} onPress={handleFinish}>
-                <Text style={styles.finishBtnText}>Launch Future Simulator ⚡</Text>
+              <TouchableOpacity style={styles.finishBtn} onPress={handleFinish} activeOpacity={0.85}>
+                <Text style={styles.finishBtnText}>Launch Future Simulator →</Text>
               </TouchableOpacity>
             </View>
           </View>
@@ -232,11 +236,13 @@ const styles = StyleSheet.create({
   },
   container: {
     padding: THEME.spacing.lg,
-    paddingTop: THEME.spacing.xxl,
+    paddingTop: THEME.spacing.xl,
+    paddingBottom: 48,
   },
   brandHeader: {
     alignItems: 'center',
     marginBottom: THEME.spacing.xl,
+    gap: 6,
   },
   logo: {
     color: THEME.colors.textPrimary,
@@ -245,25 +251,33 @@ const styles = StyleSheet.create({
     letterSpacing: 3,
   },
   tagline: {
-    color: THEME.colors.secondary,
+    color: THEME.colors.textPrimary,
     fontSize: THEME.typography.sizes.sm,
+    fontWeight: '700',
     letterSpacing: 0.5,
-    marginTop: 4,
+  },
+  positioning: {
+    color: THEME.colors.textSecondary,
+    fontSize: THEME.typography.sizes.xs,
+    textAlign: 'center',
+    maxWidth: 320,
+    lineHeight: 18,
+    marginTop: 2,
   },
   stepBlock: {
     gap: THEME.spacing.md,
   },
   stepIndicator: {
     alignSelf: 'flex-start',
-    backgroundColor: 'rgba(124, 77, 255, 0.15)',
+    backgroundColor: THEME.colors.surface,
     paddingHorizontal: 10,
     paddingVertical: 4,
     borderRadius: THEME.borderRadius.full,
     borderWidth: 1,
-    borderColor: THEME.colors.primary,
+    borderColor: THEME.colors.cardBorder,
   },
   stepIndicatorText: {
-    color: THEME.colors.primaryLight,
+    color: THEME.colors.textTertiary,
     fontSize: 10,
     fontWeight: '800',
     letterSpacing: 1,
@@ -271,7 +285,8 @@ const styles = StyleSheet.create({
   questionTitle: {
     color: THEME.colors.textPrimary,
     fontSize: THEME.typography.sizes.xl,
-    fontWeight: '800',
+    fontWeight: '900',
+    letterSpacing: -0.5,
   },
   questionSubtitle: {
     color: THEME.colors.textSecondary,
@@ -279,46 +294,47 @@ const styles = StyleSheet.create({
     lineHeight: 20,
   },
   nameInputContainer: {
-    marginBottom: THEME.spacing.sm,
+    marginBottom: THEME.spacing.xs,
+    gap: 4,
   },
   inputLabel: {
-    color: THEME.colors.textSecondary,
-    fontSize: THEME.typography.sizes.xs,
-    marginBottom: 4,
-    fontWeight: '600',
+    color: THEME.colors.textTertiary,
+    fontSize: 9,
+    fontWeight: '800',
+    letterSpacing: 1,
   },
   nameInput: {
-    backgroundColor: 'rgba(255, 255, 255, 0.05)',
+    backgroundColor: THEME.colors.surface,
     borderWidth: 1,
     borderColor: THEME.colors.cardBorder,
-    borderRadius: THEME.borderRadius.md,
+    borderRadius: THEME.borderRadius.sm,
     color: THEME.colors.textPrimary,
     paddingHorizontal: THEME.spacing.md,
     paddingVertical: 10,
     fontSize: THEME.typography.sizes.base,
   },
   grid: {
-    gap: THEME.spacing.sm,
-    marginVertical: THEME.spacing.sm,
+    gap: 8,
+    marginVertical: THEME.spacing.xs,
   },
   catCard: {
-    backgroundColor: 'rgba(255, 255, 255, 0.04)',
+    backgroundColor: THEME.colors.surface,
     borderWidth: 1,
     borderColor: THEME.colors.cardBorder,
     borderRadius: THEME.borderRadius.md,
     padding: THEME.spacing.md,
   },
   catCardSelected: {
-    borderColor: THEME.colors.secondary,
-    backgroundColor: 'rgba(0, 229, 255, 0.1)',
+    borderColor: THEME.colors.textPrimary,
+    backgroundColor: THEME.colors.elevatedSurface,
   },
   catLabel: {
-    color: THEME.colors.textPrimary,
+    color: THEME.colors.textSecondary,
     fontSize: THEME.typography.sizes.base,
     fontWeight: '700',
   },
   catLabelSelected: {
-    color: THEME.colors.secondary,
+    color: THEME.colors.textPrimary,
   },
   catDesc: {
     color: THEME.colors.textTertiary,
@@ -326,20 +342,20 @@ const styles = StyleSheet.create({
     marginTop: 2,
   },
   nextBtn: {
-    backgroundColor: THEME.colors.secondary,
+    backgroundColor: THEME.colors.primaryText,
     paddingVertical: 14,
-    borderRadius: THEME.borderRadius.md,
+    borderRadius: THEME.borderRadius.sm,
     alignItems: 'center',
-    marginTop: THEME.spacing.md,
+    marginTop: THEME.spacing.sm,
   },
   nextBtnText: {
-    color: '#07090E',
-    fontSize: THEME.typography.sizes.base,
+    color: THEME.colors.background,
+    fontSize: THEME.typography.sizes.sm,
     fontWeight: '800',
   },
   weightsCard: {
     gap: THEME.spacing.md,
-    marginVertical: THEME.spacing.sm,
+    padding: THEME.spacing.lg,
   },
   weightItem: {
     gap: 6,
@@ -369,7 +385,7 @@ const styles = StyleSheet.create({
   },
   barTrack: {
     flex: 1,
-    height: 8,
+    height: 6,
     backgroundColor: 'rgba(255, 255, 255, 0.08)',
     borderRadius: THEME.borderRadius.full,
     overflow: 'hidden',
@@ -382,7 +398,9 @@ const styles = StyleSheet.create({
     width: 28,
     height: 28,
     borderRadius: 14,
-    backgroundColor: 'rgba(255, 255, 255, 0.1)',
+    backgroundColor: THEME.colors.elevatedSurface,
+    borderWidth: 1,
+    borderColor: THEME.colors.cardBorder,
     alignItems: 'center',
     justifyContent: 'center',
   },
@@ -394,29 +412,32 @@ const styles = StyleSheet.create({
   buttonRow: {
     flexDirection: 'row',
     gap: THEME.spacing.md,
-    marginTop: THEME.spacing.md,
+    marginTop: THEME.spacing.sm,
   },
   backBtn: {
     paddingVertical: 14,
     paddingHorizontal: 16,
-    borderRadius: THEME.borderRadius.md,
-    backgroundColor: 'rgba(255, 255, 255, 0.08)',
+    borderRadius: THEME.borderRadius.sm,
+    backgroundColor: THEME.colors.surface,
+    borderWidth: 1,
+    borderColor: THEME.colors.cardBorder,
     alignItems: 'center',
   },
   backBtnText: {
     color: THEME.colors.textSecondary,
     fontWeight: '700',
+    fontSize: THEME.typography.sizes.sm,
   },
   finishBtn: {
     flex: 1,
     paddingVertical: 14,
-    borderRadius: THEME.borderRadius.md,
-    backgroundColor: THEME.colors.primary,
+    borderRadius: THEME.borderRadius.sm,
+    backgroundColor: THEME.colors.primaryText,
     alignItems: 'center',
   },
   finishBtnText: {
-    color: '#FFFFFF',
+    color: THEME.colors.background,
     fontWeight: '800',
-    fontSize: THEME.typography.sizes.base,
+    fontSize: THEME.typography.sizes.sm,
   },
 });

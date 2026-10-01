@@ -10,104 +10,100 @@ interface FutureCardProps {
 }
 
 export const FutureCard: React.FC<FutureCardProps> = ({ scenario, isActive = true }) => {
-  const [activeTab, setActiveTab] = useState<'timeline' | 'metrics' | 'proscons'>('timeline');
+  const [activeTab, setActiveTab] = useState<'timeline' | 'impact' | 'tradeoffs'>('timeline');
 
-  const getOptionColor = () => {
+  const getOptionMeta = () => {
     switch (scenario.id) {
       case 'optionA':
         return {
-          primary: THEME.colors.scenarioA,
-          glow: 'rgba(56, 189, 248, 0.25)',
-          tag: 'OPTION A — COMMIT',
-          emoji: '🔵',
+          code: 'OPTION A',
+          name: 'COMMIT',
+          tagline: 'Take action now under current roadmap',
+          accent: THEME.colors.scenarioA,
         };
       case 'optionB':
         return {
-          primary: THEME.colors.scenarioB,
-          glow: 'rgba(168, 85, 247, 0.25)',
-          tag: 'OPTION B — WAIT & AUDIT',
-          emoji: '🟣',
+          code: 'OPTION B',
+          name: 'WAIT',
+          tagline: 'Gather more evidence before committing capital',
+          accent: THEME.colors.scenarioB,
         };
       case 'optionC':
         return {
-          primary: THEME.colors.scenarioC,
-          glow: 'rgba(244, 63, 94, 0.25)',
-          tag: 'OPTION C — PIVOT & SKIP',
-          emoji: '🔴',
+          code: 'OPTION C',
+          name: 'SKIP',
+          tagline: 'Redirect time, capital, and energy elsewhere',
+          accent: THEME.colors.scenarioC,
         };
     }
   };
 
-  const colors = getOptionColor();
+  const meta = getOptionMeta();
 
   return (
-    <GlassCard highlight={isActive} borderColor={isActive ? colors.primary : undefined} glowColor={colors.glow}>
-      {/* Header Tag */}
-      <View style={styles.headerRow}>
-        <View style={[styles.tagBadge, { borderColor: colors.primary, backgroundColor: 'rgba(255, 255, 255, 0.04)' }]}>
-          <Text style={[styles.tagText, { color: colors.primary }]}>
-            {colors.emoji} {colors.tag}
-          </Text>
+    <GlassCard elevated highlight={isActive} borderColor={isActive ? meta.accent : undefined} style={styles.card}>
+      {/* Option Banner */}
+      <View style={styles.header}>
+        <View style={styles.tagWrap}>
+          <Text style={[styles.optionCode, { color: meta.accent }]}>{meta.code}</Text>
+          <Text style={styles.optionName}>{meta.name}</Text>
         </View>
-
-        <View style={styles.actionPill}>
-          <Text style={styles.actionText}>{scenario.actionType}</Text>
-        </View>
+        <Text style={styles.pathSub}>Possible 90-day scenario</Text>
       </View>
 
-      {/* Main Action Title */}
-      <Text style={styles.label}>{scenario.label}</Text>
-      <Text style={styles.subtitle}>{scenario.subtitle}</Text>
+      <Text style={styles.scenarioLabel}>{scenario.label}</Text>
+      <Text style={styles.scenarioDesc}>{scenario.summary}</Text>
 
-      {/* Quick Stats Grid */}
-      <View style={styles.statsGrid}>
-        <View style={styles.statBox}>
-          <Text style={styles.statLabel}>Money Delta</Text>
-          <Text style={[styles.statValue, { color: scenario.financialDelta.startsWith('-') ? THEME.colors.accentPink : THEME.colors.accentGreen }]}>
+      {/* Primary Key Commitments */}
+      <View style={styles.commitmentsRow}>
+        <View style={styles.commitmentItem}>
+          <Text style={styles.commitmentLabel}>ESTIMATED CAPITAL</Text>
+          <Text
+            style={[
+              styles.commitmentVal,
+              { color: scenario.financialDelta.startsWith('-') ? THEME.colors.textPrimary : THEME.colors.accentGreen },
+            ]}
+          >
             {scenario.financialDelta}
           </Text>
         </View>
 
-        <View style={styles.statBox}>
-          <Text style={styles.statLabel}>Time Cost</Text>
-          <Text style={[styles.statValue, { color: THEME.colors.secondary }]}>
+        <View style={styles.commitmentDivider} />
+
+        <View style={styles.commitmentItem}>
+          <Text style={styles.commitmentLabel}>WEEKLY TIME</Text>
+          <Text style={[styles.commitmentVal, { color: THEME.colors.secondary }]}>
             {scenario.timeCommitment}
           </Text>
         </View>
       </View>
 
-      {/* Probability Box */}
-      <View style={styles.probabilityBox}>
-        <Text style={styles.probTitle}>⚡ PROBABILITY-WEIGHTED FUTURE</Text>
-        <Text style={styles.probText}>{scenario.probabilityWeightedOutcome}</Text>
-      </View>
-
-      {/* Sub Tabs */}
-      <View style={styles.tabBar}>
+      {/* Tabs */}
+      <View style={styles.tabRow}>
         <TouchableOpacity
-          style={[styles.tabButton, activeTab === 'timeline' && styles.tabActive]}
+          style={[styles.tabBtn, activeTab === 'timeline' && styles.tabBtnActive]}
           onPress={() => setActiveTab('timeline')}
         >
-          <Text style={[styles.tabText, activeTab === 'timeline' && styles.tabTextActive]}>
-            Timeline
+          <Text style={[styles.tabBtnText, activeTab === 'timeline' && styles.tabBtnTextActive]}>
+            What Could Happen
           </Text>
         </TouchableOpacity>
 
         <TouchableOpacity
-          style={[styles.tabButton, activeTab === 'metrics' && styles.tabActive]}
-          onPress={() => setActiveTab('metrics')}
+          style={[styles.tabBtn, activeTab === 'impact' && styles.tabBtnActive]}
+          onPress={() => setActiveTab('impact')}
         >
-          <Text style={[styles.tabText, activeTab === 'metrics' && styles.tabTextActive]}>
-            Impact Metrics
+          <Text style={[styles.tabBtnText, activeTab === 'impact' && styles.tabBtnTextActive]}>
+            Impact Factors
           </Text>
         </TouchableOpacity>
 
         <TouchableOpacity
-          style={[styles.tabButton, activeTab === 'proscons' && styles.tabActive]}
-          onPress={() => setActiveTab('proscons')}
+          style={[styles.tabBtn, activeTab === 'tradeoffs' && styles.tabBtnActive]}
+          onPress={() => setActiveTab('tradeoffs')}
         >
-          <Text style={[styles.tabText, activeTab === 'proscons' && styles.tabTextActive]}>
-            Pros & Cons
+          <Text style={[styles.tabBtnText, activeTab === 'tradeoffs' && styles.tabBtnTextActive]}>
+            Upside & Trade-off
           </Text>
         </TouchableOpacity>
       </View>
@@ -117,46 +113,49 @@ export const FutureCard: React.FC<FutureCardProps> = ({ scenario, isActive = tru
         <View style={styles.timelineList}>
           {scenario.milestones.map((m, idx) => (
             <View key={idx} style={styles.timelineItem}>
-              <View style={styles.timelineDayBubble}>
-                <Text style={styles.timelineDayText}>DAY {m.day}</Text>
+              <View style={styles.dayBadge}>
+                <Text style={styles.dayText}>DAY {m.day}</Text>
               </View>
               <View style={styles.timelineContent}>
                 <View style={styles.timelineTitleRow}>
-                  <Text style={styles.timelineTitle}>{m.title}</Text>
-                  <Text style={[styles.metricImpact, { color: colors.primary }]}>{m.metricImpact}</Text>
+                  <Text style={styles.milestoneTitle}>{m.title}</Text>
+                  <Text style={[styles.milestoneImpact, { color: meta.accent }]}>{m.metricImpact}</Text>
                 </View>
-                <Text style={styles.timelineDesc}>{m.description}</Text>
+                <Text style={styles.milestoneDesc}>{m.description}</Text>
               </View>
             </View>
           ))}
+          <Text style={styles.assumptionFootnote}>
+            Based on current assumptions · Estimated outcome rather than a guaranteed forecast.
+          </Text>
         </View>
       )}
 
-      {activeTab === 'metrics' && (
-        <View style={styles.metricsContainer}>
-          <MiniMeter label="Skill & Knowledge Gain" score={scenario.skillGrowth} color={THEME.colors.accentGreen} />
-          <MiniMeter label="Portfolio Leverage" score={scenario.portfolioImpact} color={THEME.colors.secondary} />
-          <MiniMeter label="Capital Preservation" score={scenario.financialImpact} color={THEME.colors.accentAmber} />
-          <MiniMeter label="Peace of Mind & Focus" score={scenario.peaceOfMind} color={THEME.colors.primaryLight} />
+      {activeTab === 'impact' && (
+        <View style={styles.impactContainer}>
+          <ImpactMeter label="Career & Skill Leverage" score={scenario.skillGrowth} color={THEME.colors.accentGreen} />
+          <ImpactMeter label="Time Intensity Tax" score={scenario.id === 'optionA' ? 75 : 20} color={THEME.colors.secondary} />
+          <ImpactMeter label="Capital Preservation" score={scenario.financialImpact} color={THEME.colors.accentAmber} />
+          <ImpactMeter label="Peace of Mind & Focus" score={scenario.peaceOfMind} color={THEME.colors.primaryLight} />
         </View>
       )}
 
-      {activeTab === 'proscons' && (
-        <View style={styles.prosConsContainer}>
-          <View style={styles.sectionBlock}>
-            <Text style={styles.prosHeader}>✦ Strategic Advantages</Text>
-            {scenario.pros.map((pro, i) => (
-              <Text key={i} style={styles.bulletItem}>
-                • {pro}
+      {activeTab === 'tradeoffs' && (
+        <View style={styles.tradeoffBox}>
+          <View style={styles.tradeoffSection}>
+            <Text style={styles.tradeoffTitle}>✦ Potential Upside</Text>
+            {scenario.pros.map((p, i) => (
+              <Text key={i} style={styles.bulletPoint}>
+                • {p}
               </Text>
             ))}
           </View>
 
-          <View style={styles.sectionBlock}>
-            <Text style={styles.consHeader}>⚠ Potential Pitfalls</Text>
-            {scenario.cons.map((con, i) => (
-              <Text key={i} style={styles.bulletItem}>
-                • {con}
+          <View style={styles.tradeoffSection}>
+            <Text style={[styles.tradeoffTitle, { color: THEME.colors.accentRose }]}>⚠ Trade-off & Cost</Text>
+            {scenario.cons.map((c, i) => (
+              <Text key={i} style={styles.bulletPoint}>
+                • {c}
               </Text>
             ))}
           </View>
@@ -166,146 +165,130 @@ export const FutureCard: React.FC<FutureCardProps> = ({ scenario, isActive = tru
   );
 };
 
-const MiniMeter: React.FC<{ label: string; score: number; color: string }> = ({ label, score, color }) => (
-  <View style={styles.miniMeter}>
-    <View style={styles.miniMeterHeader}>
-      <Text style={styles.miniMeterLabel}>{label}</Text>
-      <Text style={[styles.miniMeterScore, { color }]}>{score}%</Text>
+const ImpactMeter: React.FC<{ label: string; score: number; color: string }> = ({ label, score, color }) => (
+  <View style={styles.meterBlock}>
+    <View style={styles.meterHeader}>
+      <Text style={styles.meterLabel}>{label}</Text>
+      <Text style={[styles.meterVal, { color }]}>{score}%</Text>
     </View>
-    <View style={styles.barTrack}>
-      <View style={[styles.barFill, { width: `${score}%`, backgroundColor: color }]} />
+    <View style={styles.meterTrack}>
+      <View style={[styles.meterFill, { width: `${Math.min(100, Math.max(10, score))}%`, backgroundColor: color }]} />
     </View>
   </View>
 );
 
 const styles = StyleSheet.create({
-  headerRow: {
+  card: {
+    padding: THEME.spacing.lg,
+    gap: THEME.spacing.md,
+  },
+  header: {
     flexDirection: 'row',
     justifyContent: 'space-between',
+    alignItems: 'baseline',
+  },
+  tagWrap: {
+    flexDirection: 'row',
     alignItems: 'center',
-    marginBottom: THEME.spacing.sm,
+    gap: 8,
   },
-  tagBadge: {
-    borderWidth: 1,
-    paddingHorizontal: THEME.spacing.sm,
-    paddingVertical: 3,
-    borderRadius: THEME.borderRadius.full,
-  },
-  tagText: {
-    fontSize: THEME.typography.sizes.xs,
-    fontWeight: '800',
-    letterSpacing: 0.8,
-  },
-  actionPill: {
-    backgroundColor: 'rgba(255, 255, 255, 0.08)',
-    paddingHorizontal: THEME.spacing.sm,
-    paddingVertical: 2,
-    borderRadius: THEME.borderRadius.sm,
-  },
-  actionText: {
-    color: THEME.colors.textSecondary,
+  optionCode: {
     fontSize: 10,
-    fontWeight: '600',
-    textTransform: 'uppercase',
+    fontWeight: '900',
+    letterSpacing: 1.2,
   },
-  label: {
+  optionName: {
+    color: THEME.colors.textPrimary,
+    fontSize: THEME.typography.sizes.lg,
+    fontWeight: '900',
+    letterSpacing: 0.5,
+  },
+  pathSub: {
+    color: THEME.colors.textTertiary,
+    fontSize: 10,
+  },
+  scenarioLabel: {
     color: THEME.colors.textPrimary,
     fontSize: THEME.typography.sizes.xl,
     fontWeight: '800',
-    marginTop: 2,
   },
-  subtitle: {
+  scenarioDesc: {
     color: THEME.colors.textSecondary,
-    fontSize: THEME.typography.sizes.sm,
-    marginBottom: THEME.spacing.md,
+    fontSize: THEME.typography.sizes.xs,
+    lineHeight: 18,
   },
-  statsGrid: {
+  commitmentsRow: {
     flexDirection: 'row',
-    gap: THEME.spacing.md,
-    marginBottom: THEME.spacing.md,
-  },
-  statBox: {
-    flex: 1,
-    backgroundColor: 'rgba(255, 255, 255, 0.04)',
-    padding: THEME.spacing.sm,
+    backgroundColor: 'rgba(255, 255, 255, 0.03)',
     borderRadius: THEME.borderRadius.md,
     borderWidth: 1,
     borderColor: THEME.colors.cardBorder,
+    padding: THEME.spacing.md,
+    alignItems: 'center',
   },
-  statLabel: {
+  commitmentItem: {
+    flex: 1,
+  },
+  commitmentLabel: {
     color: THEME.colors.textTertiary,
-    fontSize: 10,
-    textTransform: 'uppercase',
-    fontWeight: '600',
+    fontSize: 8,
+    fontWeight: '800',
+    letterSpacing: 0.8,
   },
-  statValue: {
+  commitmentVal: {
     fontSize: THEME.typography.sizes.base,
     fontWeight: '800',
     marginTop: 2,
   },
-  probabilityBox: {
-    backgroundColor: 'rgba(0, 0, 0, 0.35)',
-    borderLeftWidth: 3,
-    borderLeftColor: THEME.colors.secondary,
-    padding: THEME.spacing.sm,
-    borderRadius: THEME.borderRadius.sm,
-    marginBottom: THEME.spacing.md,
+  commitmentDivider: {
+    width: 1,
+    height: 28,
+    backgroundColor: 'rgba(255, 255, 255, 0.08)',
+    marginHorizontal: THEME.spacing.sm,
   },
-  probTitle: {
-    color: THEME.colors.secondary,
-    fontSize: 10,
-    fontWeight: '800',
-    letterSpacing: 0.5,
-    marginBottom: 2,
-  },
-  probText: {
-    color: THEME.colors.textSecondary,
-    fontSize: THEME.typography.sizes.xs,
-    lineHeight: 16,
-  },
-  tabBar: {
+  tabRow: {
     flexDirection: 'row',
-    backgroundColor: 'rgba(0, 0, 0, 0.4)',
-    borderRadius: THEME.borderRadius.md,
-    padding: 3,
-    marginBottom: THEME.spacing.md,
+    borderBottomWidth: 1,
+    borderBottomColor: 'rgba(255, 255, 255, 0.08)',
+    paddingBottom: 4,
+    gap: 12,
   },
-  tabButton: {
-    flex: 1,
-    paddingVertical: THEME.spacing.xs,
-    alignItems: 'center',
-    borderRadius: THEME.borderRadius.sm,
+  tabBtn: {
+    paddingVertical: 6,
+    paddingHorizontal: 4,
   },
-  tabActive: {
-    backgroundColor: 'rgba(255, 255, 255, 0.12)',
+  tabBtnActive: {
+    borderBottomWidth: 2,
+    borderBottomColor: THEME.colors.primary,
   },
-  tabText: {
+  tabBtnText: {
     color: THEME.colors.textTertiary,
-    fontSize: THEME.typography.sizes.xs,
+    fontSize: 11,
     fontWeight: '600',
   },
-  tabTextActive: {
+  tabBtnTextActive: {
     color: THEME.colors.textPrimary,
-    fontWeight: 'bold',
+    fontWeight: '800',
   },
   timelineList: {
-    gap: THEME.spacing.sm,
+    gap: 10,
+    paddingTop: 4,
   },
   timelineItem: {
     flexDirection: 'row',
-    gap: THEME.spacing.sm,
+    gap: 10,
     backgroundColor: 'rgba(255, 255, 255, 0.02)',
     padding: THEME.spacing.sm,
-    borderRadius: THEME.borderRadius.md,
+    borderRadius: THEME.borderRadius.sm,
   },
-  timelineDayBubble: {
-    backgroundColor: 'rgba(255, 255, 255, 0.08)',
+  dayBadge: {
+    backgroundColor: 'rgba(255, 255, 255, 0.06)',
     paddingHorizontal: 6,
     paddingVertical: 4,
-    borderRadius: THEME.borderRadius.sm,
+    borderRadius: 4,
     alignSelf: 'flex-start',
   },
-  timelineDayText: {
+  dayText: {
     color: THEME.colors.textPrimary,
     fontSize: 9,
     fontWeight: '800',
@@ -319,65 +302,68 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     marginBottom: 2,
   },
-  timelineTitle: {
+  milestoneTitle: {
     color: THEME.colors.textPrimary,
-    fontSize: THEME.typography.sizes.xs,
+    fontSize: 11,
     fontWeight: '700',
   },
-  metricImpact: {
+  milestoneImpact: {
     fontSize: 10,
     fontWeight: '700',
   },
-  timelineDesc: {
+  milestoneDesc: {
     color: THEME.colors.textTertiary,
     fontSize: 11,
     lineHeight: 15,
   },
-  metricsContainer: {
-    gap: THEME.spacing.sm,
+  assumptionFootnote: {
+    color: THEME.colors.textMuted,
+    fontSize: 9,
+    fontStyle: 'italic',
+    marginTop: 4,
   },
-  miniMeter: {
-    gap: 3,
+  impactContainer: {
+    gap: 12,
+    paddingTop: 4,
   },
-  miniMeterHeader: {
+  meterBlock: {
+    gap: 4,
+  },
+  meterHeader: {
     flexDirection: 'row',
     justifyContent: 'space-between',
   },
-  miniMeterLabel: {
+  meterLabel: {
     color: THEME.colors.textSecondary,
-    fontSize: THEME.typography.sizes.xs,
+    fontSize: 11,
   },
-  miniMeterScore: {
-    fontSize: THEME.typography.sizes.xs,
+  meterVal: {
+    fontSize: 11,
     fontWeight: '700',
   },
-  barTrack: {
+  meterTrack: {
     height: 6,
-    backgroundColor: 'rgba(255, 255, 255, 0.08)',
+    backgroundColor: 'rgba(255, 255, 255, 0.06)',
     borderRadius: THEME.borderRadius.full,
     overflow: 'hidden',
   },
-  barFill: {
+  meterFill: {
     height: '100%',
     borderRadius: THEME.borderRadius.full,
   },
-  prosConsContainer: {
-    gap: THEME.spacing.sm,
+  tradeoffBox: {
+    gap: 10,
+    paddingTop: 4,
   },
-  sectionBlock: {
+  tradeoffSection: {
     gap: 3,
   },
-  prosHeader: {
+  tradeoffTitle: {
     color: THEME.colors.accentGreen,
-    fontSize: THEME.typography.sizes.xs,
+    fontSize: 11,
     fontWeight: '700',
   },
-  consHeader: {
-    color: THEME.colors.accentPink,
-    fontSize: THEME.typography.sizes.xs,
-    fontWeight: '700',
-  },
-  bulletItem: {
+  bulletPoint: {
     color: THEME.colors.textSecondary,
     fontSize: 11,
     lineHeight: 16,

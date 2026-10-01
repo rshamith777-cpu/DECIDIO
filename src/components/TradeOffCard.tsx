@@ -6,149 +6,151 @@ import { GlassCard } from './GlassCard';
 
 interface TradeOffCardProps {
   tradeOff: TradeOffAnalysis;
+  cost?: number;
+  currency?: string;
+  hoursPerWeek?: number;
+  horizonDays?: number;
 }
 
-export const TradeOffCard: React.FC<TradeOffCardProps> = ({ tradeOff }) => {
+export const TradeOffCard: React.FC<TradeOffCardProps> = ({
+  tradeOff,
+  cost = 4999,
+  currency = '₹',
+  hoursPerWeek = 8,
+  horizonDays = 90,
+}) => {
+  const totalHours = hoursPerWeek * Math.round(horizonDays / 7);
+
   return (
-    <GlassCard highlight glowColor="rgba(255, 171, 0, 0.25)" borderColor={THEME.colors.accentAmber}>
+    <GlassCard elevated style={styles.card}>
       <View style={styles.header}>
-        <Text style={styles.icon}>⚖️</Text>
-        <View style={styles.titleArea}>
-          <Text style={styles.title}>THE TRUE TRADE-OFF</Text>
-          <Text style={styles.subtitle}>Uncovering unseen costs and opportunity penalties</Text>
+        <Text style={styles.title}>The True Trade-Off</Text>
+        <Text style={styles.subtitle}>Beyond the direct price tag</Text>
+      </View>
+
+      {/* Human translation statement */}
+      <Text style={styles.highlightStatement}>
+        The {currency}{Math.round(cost).toLocaleString()} price is only part of the commitment.
+      </Text>
+
+      {/* 3 Pillars Breakdown */}
+      <View style={styles.commitmentGrid}>
+        <View style={styles.pillarItem}>
+          <Text style={styles.pillarValue}>{currency}{Math.round(cost).toLocaleString()}</Text>
+          <Text style={styles.pillarLabel}>Financial commitment</Text>
+        </View>
+
+        <View style={styles.pillarDivider} />
+
+        <View style={styles.pillarItem}>
+          <Text style={[styles.pillarValue, { color: THEME.colors.secondary }]}>~{totalHours} hrs</Text>
+          <Text style={styles.pillarLabel}>Estimated time commitment</Text>
+        </View>
+
+        <View style={styles.pillarDivider} />
+
+        <View style={styles.pillarItem}>
+          <Text style={[styles.pillarValue, { color: THEME.colors.primaryLight }]}>1 Major</Text>
+          <Text style={styles.pillarLabel}>Alternative forfeited</Text>
         </View>
       </View>
 
-      {/* Core Conflict */}
-      <View style={styles.calloutBox}>
-        <Text style={styles.calloutText}>{tradeOff.coreConflict}</Text>
+      {/* Deep Human Explanation */}
+      <View style={styles.insightBox}>
+        <Text style={styles.insightText}>
+          The real decision is not {currency}{Math.round(cost).toLocaleString()}. It's whether the outcome is worth the money + time + alternatives you're giving up.
+        </Text>
       </View>
 
-      {/* Hidden Costs Formula */}
-      <View style={styles.section}>
-        <Text style={styles.sectionLabel}>🔍 THE HIDDEN COST</Text>
-        <View style={styles.formulaBox}>
-          <Text style={styles.formulaText}>{tradeOff.hiddenCostFormula}</Text>
-        </View>
-      </View>
-
-      {/* Opportunity Cost */}
-      <View style={styles.section}>
-        <Text style={styles.sectionLabel}>⏳ OPPORTUNITY COST (WHAT YOU FORFEIT)</Text>
-        <Text style={styles.opportunityText}>{tradeOff.opportunityCost}</Text>
-      </View>
-
-      {/* AI Strategic Verdict */}
-      <View style={styles.verdictBox}>
-        <View style={styles.verdictHeader}>
-          <Text style={styles.aiBadge}>AI VERDICT</Text>
-          <Text style={styles.tradeOffPill}>{tradeOff.keyTradeoff}</Text>
-        </View>
-        <Text style={styles.verdictText}>{tradeOff.aiVerdict}</Text>
+      {/* Opportunity cost specifics */}
+      <View style={styles.opportunitySection}>
+        <Text style={styles.opportunityHeader}>WHAT YOU ARE GIVING UP:</Text>
+        <Text style={styles.opportunityBody}>{tradeOff.opportunityCost}</Text>
       </View>
     </GlassCard>
   );
 };
 
 const styles = StyleSheet.create({
+  card: {
+    padding: THEME.spacing.lg,
+    gap: THEME.spacing.md,
+  },
   header: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: THEME.spacing.sm,
-    marginBottom: THEME.spacing.md,
-  },
-  icon: {
-    fontSize: 24,
-  },
-  titleArea: {
-    flex: 1,
+    gap: 2,
   },
   title: {
-    color: THEME.colors.accentAmber,
+    color: THEME.colors.textPrimary,
     fontSize: THEME.typography.sizes.lg,
     fontWeight: '800',
-    letterSpacing: 1,
   },
   subtitle: {
     color: THEME.colors.textTertiary,
-    fontSize: THEME.typography.sizes.xs,
+    fontSize: 11,
   },
-  calloutBox: {
-    backgroundColor: 'rgba(255, 255, 255, 0.04)',
-    borderLeftWidth: 3,
-    borderLeftColor: THEME.colors.accentAmber,
-    padding: THEME.spacing.md,
-    borderRadius: THEME.borderRadius.sm,
-    marginBottom: THEME.spacing.md,
-  },
-  calloutText: {
+  highlightStatement: {
     color: THEME.colors.textPrimary,
-    fontSize: THEME.typography.sizes.sm,
-    lineHeight: 20,
-    fontWeight: '500',
+    fontSize: THEME.typography.sizes.base,
+    lineHeight: 22,
+    fontWeight: '600',
   },
-  section: {
-    marginBottom: THEME.spacing.md,
-  },
-  sectionLabel: {
-    color: THEME.colors.textTertiary,
-    fontSize: 10,
-    fontWeight: '800',
-    letterSpacing: 0.8,
-    marginBottom: 6,
-  },
-  formulaBox: {
-    backgroundColor: 'rgba(0, 0, 0, 0.4)',
-    padding: THEME.spacing.sm,
-    borderRadius: THEME.borderRadius.sm,
-    borderWidth: 1,
-    borderColor: 'rgba(255, 255, 255, 0.08)',
-  },
-  formulaText: {
-    color: THEME.colors.secondary,
-    fontSize: THEME.typography.sizes.xs,
-    fontFamily: 'monospace',
-    lineHeight: 18,
-  },
-  opportunityText: {
-    color: THEME.colors.textSecondary,
-    fontSize: THEME.typography.sizes.xs,
-    lineHeight: 18,
-  },
-  verdictBox: {
-    backgroundColor: 'rgba(124, 77, 255, 0.12)',
-    borderWidth: 1,
-    borderColor: 'rgba(124, 77, 255, 0.3)',
-    borderRadius: THEME.borderRadius.md,
-    padding: THEME.spacing.md,
-    gap: 6,
-  },
-  verdictHeader: {
+  commitmentGrid: {
     flexDirection: 'row',
-    justifyContent: 'space-between',
+    backgroundColor: 'rgba(255, 255, 255, 0.03)',
+    borderRadius: THEME.borderRadius.md,
+    borderWidth: 1,
+    borderColor: THEME.colors.cardBorder,
+    padding: THEME.spacing.md,
     alignItems: 'center',
-    flexWrap: 'wrap',
-    gap: 6,
   },
-  aiBadge: {
-    color: THEME.colors.primaryLight,
-    fontSize: 10,
-    fontWeight: '800',
-    letterSpacing: 1,
-    backgroundColor: 'rgba(124, 77, 255, 0.25)',
-    paddingHorizontal: 6,
-    paddingVertical: 2,
-    borderRadius: 4,
+  pillarItem: {
+    flex: 1,
   },
-  tradeOffPill: {
-    color: THEME.colors.accentAmber,
-    fontSize: 10,
-    fontWeight: '700',
-  },
-  verdictText: {
+  pillarValue: {
     color: THEME.colors.textPrimary,
-    fontSize: THEME.typography.sizes.xs,
+    fontSize: THEME.typography.sizes.base,
+    fontWeight: '800',
+  },
+  pillarLabel: {
+    color: THEME.colors.textTertiary,
+    fontSize: 9,
+    marginTop: 2,
+    lineHeight: 12,
+  },
+  pillarDivider: {
+    width: 1,
+    height: 28,
+    backgroundColor: 'rgba(255, 255, 255, 0.08)',
+    marginHorizontal: THEME.spacing.xs,
+  },
+  insightBox: {
+    backgroundColor: 'rgba(124, 77, 255, 0.08)',
+    borderLeftWidth: 2,
+    borderLeftColor: THEME.colors.primary,
+    padding: THEME.spacing.md,
+    borderRadius: THEME.borderRadius.sm,
+  },
+  insightText: {
+    color: THEME.colors.textPrimary,
+    fontSize: 12,
     lineHeight: 18,
     fontStyle: 'italic',
+  },
+  opportunitySection: {
+    gap: 4,
+    borderTopWidth: 1,
+    borderTopColor: 'rgba(255, 255, 255, 0.06)',
+    paddingTop: THEME.spacing.sm,
+  },
+  opportunityHeader: {
+    color: THEME.colors.textTertiary,
+    fontSize: 9,
+    fontWeight: '800',
+    letterSpacing: 0.8,
+  },
+  opportunityBody: {
+    color: THEME.colors.textSecondary,
+    fontSize: 11,
+    lineHeight: 16,
   },
 });

@@ -9,210 +9,171 @@ interface DecisionDNACardProps {
   compact?: boolean;
 }
 
-export const DecisionDNACard: React.FC<DecisionDNACardProps> = ({ dna, compact = false }) => {
-  const getScoreColor = (score: number, inverse = false) => {
-    const val = inverse ? 100 - score : score;
-    if (val >= 70) return THEME.colors.accentGreen;
-    if (val >= 40) return THEME.colors.secondary;
-    return THEME.colors.accentPink;
-  };
-
-  const getTypeBadgeStyle = () => {
+export const DecisionDNACard: React.FC<DecisionDNACardProps> = ({ dna }) => {
+  const getPatternDescription = () => {
     switch (dna.decisionType) {
       case 'Strategic Investment':
-        return { bg: 'rgba(124, 77, 255, 0.2)', border: THEME.colors.primary, text: THEME.colors.primaryLight };
+        return 'High potential upside with meaningful time and financial commitment.';
       case 'No-Brainer Upside':
-        return { bg: 'rgba(0, 230, 118, 0.2)', border: THEME.colors.accentGreen, text: THEME.colors.accentGreen };
+        return 'Asymmetric upside with low capital downside and manageable reversibility.';
       case 'High-Risk Pivot':
-        return { bg: 'rgba(255, 42, 133, 0.2)', border: THEME.colors.accentPink, text: THEME.colors.accentPink };
+        return 'Significant commitment with low reversibility; requires strict milestones.';
+      case 'Low-Stakes Trial':
+        return 'Highly reversible experiment; low downside if results underperform.';
+      case 'Capital Preserver':
+        return 'Focuses on capital protection and optionality over rapid speculative gains.';
       default:
-        return { bg: 'rgba(0, 229, 255, 0.2)', border: THEME.colors.secondary, text: THEME.colors.secondary };
+        return 'Balanced profile with calculated risk and measurable milestones.';
     }
   };
 
-  const badge = getTypeBadgeStyle();
-
   return (
-    <GlassCard highlight glowColor={THEME.colors.primaryGlow}>
+    <GlassCard elevated style={styles.card}>
+      {/* Header */}
       <View style={styles.header}>
-        <View style={styles.titleRow}>
-          <Text style={styles.dnaEmoji}>🧬</Text>
-          <View>
-            <Text style={styles.title}>DECISION DNA</Text>
-            <Text style={styles.subtitle}>Multi-dimensional AI Profiling</Text>
-          </View>
+        <View style={styles.titleWrap}>
+          <Text style={styles.title}>Your Decision DNA</Text>
+          <Text style={styles.subtitle}>How this decision behaves across the factors that matter.</Text>
         </View>
 
-        <View style={styles.confidenceBadge}>
+        <View style={styles.confidencePill}>
           <Text style={styles.confidenceLabel}>Confidence</Text>
-          <Text style={styles.confidenceValue}>{dna.confidenceScore}%</Text>
+          <Text style={styles.confidenceVal}>{dna.confidenceScore}%</Text>
         </View>
       </View>
 
-      <View style={[styles.typeBadge, { backgroundColor: badge.bg, borderColor: badge.border }]}>
-        <Text style={[styles.typeBadgeText, { color: badge.text }]}>
-          Decision Type: {dna.decisionType}
-        </Text>
+      {/* Decision Pattern Box */}
+      <View style={styles.patternBox}>
+        <View style={styles.patternHeader}>
+          <Text style={styles.patternBadge}>DECISION PATTERN</Text>
+          <Text style={styles.patternName}>{dna.decisionType}</Text>
+        </View>
+        <Text style={styles.patternExplanation}>{getPatternDescription()}</Text>
       </View>
 
-      <View style={styles.metricsContainer}>
-        {/* Risk */}
-        <MetricBar
-          label="Risk Exposure"
-          score={dna.riskScore}
-          color={THEME.colors.accentPink}
-          description={dna.riskScore > 60 ? 'High downside potential' : 'Calculated & manageable'}
-        />
-
-        {/* Cost Commitment */}
-        <MetricBar
-          label="Capital Commitment"
-          score={dna.costScore}
-          color={THEME.colors.accentAmber}
-          description={dna.costScore > 50 ? 'Significant capital drain' : 'Low financial resistance'}
-        />
-
-        {/* Time Intensity */}
-        <MetricBar
-          label="Time Intensity"
-          score={dna.timeScore}
-          color={THEME.colors.secondary}
-          description={dna.timeScore > 60 ? 'Heavy weekly schedule tax' : 'Fits in existing routine'}
-        />
-
-        {/* Career Upside */}
-        <MetricBar
-          label="Career & Skill Upside"
-          score={dna.careerImpactScore}
-          color={THEME.colors.accentGreen}
-          description={dna.careerImpactScore > 70 ? 'Asymmetric career leverage' : 'Incremental gain'}
-        />
-
-        {/* Reversibility */}
-        <MetricBar
-          label="Reversibility"
-          score={dna.reversibilityScore}
-          color={THEME.colors.primaryLight}
-          description={dna.reversibilityScore > 60 ? 'Easy 2-way door decision' : 'Irreversible sink cost'}
-        />
+      {/* 6 Dimensions Bars */}
+      <View style={styles.dimensionsList}>
+        <DimensionBar label="Risk Exposure" score={dna.riskScore} color={THEME.colors.accentRose} />
+        <DimensionBar label="Capital Required" score={dna.costScore} color={THEME.colors.accentAmber} />
+        <DimensionBar label="Time Intensity" score={dna.timeScore} color={THEME.colors.secondary} />
+        <DimensionBar label="Career Upside" score={dna.careerImpactScore} color={THEME.colors.accentGreen} />
+        <DimensionBar label="Reversibility" score={dna.reversibilityScore} color={THEME.colors.primaryLight} />
+        <DimensionBar label="Confidence Level" score={dna.confidenceScore} color={THEME.colors.textPrimary} />
       </View>
     </GlassCard>
   );
 };
 
-interface MetricBarProps {
-  label: string;
-  score: number;
-  color: string;
-  description: string;
-}
-
-const MetricBar: React.FC<MetricBarProps> = ({ label, score, color, description }) => {
-  return (
-    <View style={styles.metricItem}>
-      <View style={styles.metricHeader}>
-        <Text style={styles.metricLabel}>{label}</Text>
-        <Text style={[styles.metricScore, { color }]}>{score}%</Text>
-      </View>
-
-      <View style={styles.barTrack}>
-        <View style={[styles.barFill, { width: `${Math.min(100, Math.max(8, score))}%`, backgroundColor: color }]} />
-      </View>
-      <Text style={styles.metricDesc}>{description}</Text>
+const DimensionBar: React.FC<{ label: string; score: number; color: string }> = ({ label, score, color }) => (
+  <View style={styles.dimRow}>
+    <View style={styles.dimHeader}>
+      <Text style={styles.dimLabel}>{label}</Text>
+      <Text style={[styles.dimScore, { color }]}>{score}%</Text>
     </View>
-  );
-};
+    <View style={styles.barTrack}>
+      <View style={[styles.barFill, { width: `${Math.min(100, Math.max(8, score))}%`, backgroundColor: color }]} />
+    </View>
+  </View>
+);
 
 const styles = StyleSheet.create({
+  card: {
+    padding: THEME.spacing.lg,
+    gap: THEME.spacing.md,
+  },
   header: {
     flexDirection: 'row',
     justifyContent: 'space-between',
-    alignItems: 'center',
-    marginBottom: THEME.spacing.md,
+    alignItems: 'baseline',
   },
-  titleRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: THEME.spacing.sm,
-  },
-  dnaEmoji: {
-    fontSize: 24,
+  titleWrap: {
+    gap: 2,
+    flex: 1,
   },
   title: {
     color: THEME.colors.textPrimary,
     fontSize: THEME.typography.sizes.lg,
     fontWeight: '800',
-    letterSpacing: 1.2,
   },
   subtitle: {
     color: THEME.colors.textTertiary,
-    fontSize: THEME.typography.sizes.xs,
+    fontSize: 11,
   },
-  confidenceBadge: {
+  confidencePill: {
     alignItems: 'flex-end',
-    backgroundColor: 'rgba(255, 255, 255, 0.05)',
-    paddingHorizontal: THEME.spacing.sm,
-    paddingVertical: THEME.spacing.xs,
+    backgroundColor: 'rgba(255, 255, 255, 0.04)',
+    paddingHorizontal: 8,
+    paddingVertical: 4,
     borderRadius: THEME.borderRadius.sm,
     borderWidth: 1,
     borderColor: THEME.colors.cardBorder,
   },
   confidenceLabel: {
     color: THEME.colors.textTertiary,
-    fontSize: 9,
+    fontSize: 8,
     textTransform: 'uppercase',
   },
-  confidenceValue: {
+  confidenceVal: {
     color: THEME.colors.accentGreen,
-    fontSize: THEME.typography.sizes.sm,
+    fontSize: THEME.typography.sizes.xs,
     fontWeight: 'bold',
   },
-  typeBadge: {
+  patternBox: {
+    backgroundColor: 'rgba(255, 255, 255, 0.03)',
+    borderRadius: THEME.borderRadius.md,
     borderWidth: 1,
-    paddingVertical: THEME.spacing.xs,
-    paddingHorizontal: THEME.spacing.md,
-    borderRadius: THEME.borderRadius.full,
-    alignSelf: 'flex-start',
-    marginBottom: THEME.spacing.lg,
+    borderColor: THEME.colors.cardBorder,
+    padding: THEME.spacing.md,
+    gap: 6,
   },
-  typeBadgeText: {
-    fontSize: THEME.typography.sizes.xs,
-    fontWeight: '700',
-    letterSpacing: 0.5,
+  patternHeader: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 8,
   },
-  metricsContainer: {
-    gap: THEME.spacing.md,
+  patternBadge: {
+    color: THEME.colors.primaryLight,
+    fontSize: 9,
+    fontWeight: '800',
+    letterSpacing: 0.8,
   },
-  metricItem: {
+  patternName: {
+    color: THEME.colors.textPrimary,
+    fontSize: THEME.typography.sizes.sm,
+    fontWeight: '800',
+  },
+  patternExplanation: {
+    color: THEME.colors.textSecondary,
+    fontSize: 11,
+    lineHeight: 16,
+  },
+  dimensionsList: {
+    gap: 12,
+  },
+  dimRow: {
     gap: 4,
   },
-  metricHeader: {
+  dimHeader: {
     flexDirection: 'row',
     justifyContent: 'space-between',
-    alignItems: 'center',
   },
-  metricLabel: {
+  dimLabel: {
     color: THEME.colors.textSecondary,
-    fontSize: THEME.typography.sizes.sm,
+    fontSize: 11,
     fontWeight: '600',
   },
-  metricScore: {
-    fontSize: THEME.typography.sizes.sm,
+  dimScore: {
+    fontSize: 11,
     fontWeight: '700',
   },
   barTrack: {
-    height: 7,
-    backgroundColor: 'rgba(255, 255, 255, 0.07)',
+    height: 5,
+    backgroundColor: 'rgba(255, 255, 255, 0.06)',
     borderRadius: THEME.borderRadius.full,
     overflow: 'hidden',
   },
   barFill: {
     height: '100%',
     borderRadius: THEME.borderRadius.full,
-  },
-  metricDesc: {
-    color: THEME.colors.textTertiary,
-    fontSize: 10,
-    marginTop: 1,
   },
 });

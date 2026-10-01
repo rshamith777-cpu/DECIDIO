@@ -39,14 +39,15 @@ export const DecisionsJournalScreen: React.FC<DecisionsJournalScreenProps> = ({
   return (
     <SafeAreaView style={styles.safeArea}>
       <ScrollView contentContainerStyle={styles.container}>
-        {/* Top Header */}
+        {/* Editorial Top Header */}
         <View style={styles.headerRow}>
-          <View>
-            <Text style={styles.title}>DECISION JOURNAL</Text>
-            <Text style={styles.subtitle}>Your living archive of simulated realities</Text>
+          <View style={styles.headerTextGroup}>
+            <Text style={styles.eyebrow}>ARCHIVE</Text>
+            <Text style={styles.title}>Decision Journal</Text>
+            <Text style={styles.subtitle}>Explore past simulations and track how reality unfolded.</Text>
           </View>
-          <TouchableOpacity style={styles.addBtn} onPress={onOpenCreate}>
-            <Text style={styles.addBtnText}>+ New</Text>
+          <TouchableOpacity style={styles.addBtn} onPress={onOpenCreate} activeOpacity={0.85}>
+            <Text style={styles.addBtnText}>+ New Decision</Text>
           </TouchableOpacity>
         </View>
 
@@ -54,20 +55,21 @@ export const DecisionsJournalScreen: React.FC<DecisionsJournalScreenProps> = ({
         <View style={styles.searchBox}>
           <TextInput
             style={styles.searchInput}
-            placeholder="Search decisions, offers, courses..."
+            placeholder="Search decisions, offers, or courses..."
             placeholderTextColor={THEME.colors.textTertiary}
             value={search}
             onChangeText={setSearch}
           />
         </View>
 
-        {/* Category Pills */}
+        {/* Category Filter Pills */}
         <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.categoryRow}>
           {CATEGORIES.map(cat => (
             <TouchableOpacity
               key={cat}
               style={[styles.catPill, selectedCategory === cat && styles.catPillActive]}
               onPress={() => setSelectedCategory(cat)}
+              activeOpacity={0.8}
             >
               <Text style={[styles.catPillText, selectedCategory === cat && styles.catPillTextActive]}>
                 {cat}
@@ -83,61 +85,87 @@ export const DecisionsJournalScreen: React.FC<DecisionsJournalScreenProps> = ({
               key={st}
               style={[styles.statusTab, selectedStatus === st && styles.statusTabActive]}
               onPress={() => setSelectedStatus(st)}
+              activeOpacity={0.8}
             >
               <Text style={[styles.statusTabText, selectedStatus === st && styles.statusTabTextActive]}>
-                {st.toUpperCase()}
+                {st === 'all' ? 'ALL SCENARIOS' : st === 'active' ? 'ACTIVE' : 'RESOLVED'}
               </Text>
             </TouchableOpacity>
           ))}
         </View>
 
-        {/* Decisions List */}
+        {/* Editorial Decisions List */}
         <View style={styles.list}>
           {filtered.length === 0 ? (
             <View style={styles.emptyContainer}>
-              <Text style={styles.emptyIcon}>📂</Text>
-              <Text style={styles.emptyTitle}>No matching decisions found</Text>
-              <Text style={styles.emptyDesc}>Try adjusting your search or simulate a new decision now.</Text>
+              <Text style={styles.emptyTitle}>No decisions yet.</Text>
+              <Text style={styles.emptyDesc}>Your first decision is only a sentence away.</Text>
+              <TouchableOpacity style={styles.emptyActionBtn} onPress={onOpenCreate} activeOpacity={0.85}>
+                <Text style={styles.emptyActionBtnText}>+ Create Your First Decision</Text>
+              </TouchableOpacity>
             </View>
           ) : (
-            filtered.map(item => (
-              <TouchableOpacity key={item.id} onPress={() => onSelectDecision(item)} activeOpacity={0.8}>
-                <GlassCard style={styles.journalCard}>
-                  <View style={styles.journalCardHeader}>
-                    <View style={styles.categoryTag}>
-                      <Text style={styles.categoryTagText}>{item.category.toUpperCase()}</Text>
+            filtered.map((item, index) => {
+              const itemNumber = `DECISION ${(filtered.length - index).toString().padStart(3, '0')}`;
+              const formattedDate = new Date(item.createdAt).toLocaleDateString(undefined, {
+                month: 'long',
+                day: 'numeric',
+              });
+
+              // Branch determination
+              let branchLabel = 'SIMULATING';
+              let branchColor = THEME.colors.accentCyan;
+              if (item.status === 'resolved' && item.resolvedOutcome) {
+                if (item.resolvedOutcome.chosenOption === 'optionA') {
+                  branchLabel = 'COMMIT';
+                  branchColor = THEME.colors.scenarioA;
+                } else if (item.resolvedOutcome.chosenOption === 'optionB') {
+                  branchLabel = 'WAIT';
+                  branchColor = THEME.colors.scenarioB;
+                } else {
+                  branchLabel = 'SKIP';
+                  branchColor = THEME.colors.scenarioC;
+                }
+              }
+
+              return (
+                <TouchableOpacity
+                  key={item.id}
+                  onPress={() => onSelectDecision(item)}
+                  activeOpacity={0.85}
+                >
+                  <GlassCard style={styles.editorialCard}>
+                    {/* Top Row: DECISION 027 + Date */}
+                    <View style={styles.cardTopRow}>
+                      <Text style={styles.itemNumberText}>{itemNumber}</Text>
+                      <Text style={styles.dateText}>{formattedDate}</Text>
                     </View>
-                    <View style={styles.dateAndStatus}>
-                      <Text style={styles.dateText}>
-                        {new Date(item.createdAt).toLocaleDateString(undefined, { month: 'short', day: 'numeric' })}
-                      </Text>
-                      <View style={[styles.statusDot, item.status === 'resolved' ? styles.statusDotResolved : styles.statusDotActive]} />
+
+                    {/* Decision Title */}
+                    <Text style={styles.cardTitle}>{item.title}</Text>
+
+                    {/* Category · Cost */}
+                    <Text style={styles.metaLine}>
+                      {item.category} · {item.currency}{Math.round(item.currentCost).toLocaleString()}
+                    </Text>
+
+                    {/* Bottom Row: Branch pill & Confidence */}
+                    <View style={styles.cardBottomRow}>
+                      <View style={[styles.branchBadge, { borderColor: branchColor }]}>
+                        <Text style={[styles.branchBadgeText, { color: branchColor }]}>
+                          {branchLabel}
+                        </Text>
+                      </View>
+
+                      <View style={styles.confidenceRow}>
+                        <Text style={styles.confidenceText}>Confidence {item.dna.confidenceScore}%</Text>
+                        <Text style={styles.chevron}>→</Text>
+                      </View>
                     </View>
-                  </View>
-
-                  <Text style={styles.cardTitle}>{item.title}</Text>
-
-                  <View style={styles.statsRow}>
-                    <Text style={styles.statVal}>
-                      {item.currency}{Math.round(item.currentCost).toLocaleString()}
-                    </Text>
-                    <Text style={styles.sep}>|</Text>
-                    <Text style={styles.statVal}>{item.hoursPerWeek}h / wk</Text>
-                    <Text style={styles.sep}>|</Text>
-                    <Text style={[styles.statVal, { color: THEME.colors.primaryLight }]}>
-                      {item.dna.decisionType}
-                    </Text>
-                  </View>
-
-                  <View style={styles.cardFooter}>
-                    <Text style={styles.footerTradeoff} numberOfLines={1}>
-                      ⚡ {item.tradeOff.keyTradeoff}
-                    </Text>
-                    <Text style={styles.confidenceText}>{item.dna.confidenceScore}% conf</Text>
-                  </View>
-                </GlassCard>
-              </TouchableOpacity>
-            ))
+                  </GlassCard>
+                </TouchableOpacity>
+              );
+            })
           )}
         </View>
       </ScrollView>
@@ -152,42 +180,55 @@ const styles = StyleSheet.create({
   },
   container: {
     padding: THEME.spacing.lg,
-    paddingBottom: 40,
+    paddingBottom: 60,
     gap: THEME.spacing.md,
   },
   headerRow: {
     flexDirection: 'row',
     justifyContent: 'space-between',
-    alignItems: 'center',
+    alignItems: 'flex-start',
+    gap: THEME.spacing.md,
+    marginTop: 4,
+  },
+  headerTextGroup: {
+    flex: 1,
+    gap: 4,
+  },
+  eyebrow: {
+    color: THEME.colors.textTertiary,
+    fontSize: 10,
+    fontWeight: '800',
+    letterSpacing: 1.5,
   },
   title: {
     color: THEME.colors.textPrimary,
-    fontSize: THEME.typography.sizes.xl,
+    fontSize: THEME.typography.sizes.xxl,
     fontWeight: '900',
-    letterSpacing: 1.2,
+    letterSpacing: -0.5,
   },
   subtitle: {
-    color: THEME.colors.textTertiary,
+    color: THEME.colors.textSecondary,
     fontSize: THEME.typography.sizes.xs,
+    lineHeight: 18,
   },
   addBtn: {
-    backgroundColor: THEME.colors.primary,
-    paddingHorizontal: 12,
-    paddingVertical: 6,
+    backgroundColor: THEME.colors.primaryText,
+    paddingHorizontal: 14,
+    paddingVertical: 8,
     borderRadius: THEME.borderRadius.full,
   },
   addBtnText: {
-    color: '#FFFFFF',
+    color: THEME.colors.background,
     fontSize: THEME.typography.sizes.xs,
-    fontWeight: 'bold',
+    fontWeight: '800',
   },
   searchBox: {
-    backgroundColor: 'rgba(255, 255, 255, 0.05)',
+    backgroundColor: THEME.colors.surface,
     borderWidth: 1,
     borderColor: THEME.colors.cardBorder,
     borderRadius: THEME.borderRadius.md,
     paddingHorizontal: THEME.spacing.md,
-    paddingVertical: 8,
+    paddingVertical: 10,
   },
   searchInput: {
     color: THEME.colors.textPrimary,
@@ -195,19 +236,19 @@ const styles = StyleSheet.create({
   },
   categoryRow: {
     gap: 8,
-    paddingVertical: 4,
+    paddingVertical: 2,
   },
   catPill: {
-    backgroundColor: 'rgba(255, 255, 255, 0.04)',
+    backgroundColor: THEME.colors.surface,
     borderWidth: 1,
     borderColor: THEME.colors.cardBorder,
-    paddingHorizontal: 12,
-    paddingVertical: 6,
+    paddingHorizontal: 14,
+    paddingVertical: 7,
     borderRadius: THEME.borderRadius.full,
   },
   catPillActive: {
-    backgroundColor: THEME.colors.secondary,
-    borderColor: THEME.colors.secondary,
+    backgroundColor: THEME.colors.elevatedSurface,
+    borderColor: THEME.colors.textPrimary,
   },
   catPillText: {
     color: THEME.colors.textTertiary,
@@ -215,131 +256,130 @@ const styles = StyleSheet.create({
     fontWeight: '700',
   },
   catPillTextActive: {
-    color: '#07090E',
-    fontWeight: 'bold',
+    color: THEME.colors.textPrimary,
+    fontWeight: '800',
   },
   statusTabs: {
     flexDirection: 'row',
-    backgroundColor: 'rgba(0, 0, 0, 0.3)',
-    borderRadius: THEME.borderRadius.md,
+    backgroundColor: THEME.colors.surface,
+    borderRadius: THEME.borderRadius.sm,
     padding: 3,
+    borderWidth: 1,
+    borderColor: THEME.colors.cardBorder,
   },
   statusTab: {
     flex: 1,
-    paddingVertical: 6,
+    paddingVertical: 7,
     alignItems: 'center',
-    borderRadius: THEME.borderRadius.sm,
+    borderRadius: 4,
   },
   statusTabActive: {
-    backgroundColor: 'rgba(255, 255, 255, 0.1)',
+    backgroundColor: THEME.colors.elevatedSurface,
   },
   statusTabText: {
     color: THEME.colors.textTertiary,
-    fontSize: 10,
-    fontWeight: '700',
+    fontSize: 9,
+    fontWeight: '800',
+    letterSpacing: 0.5,
   },
   statusTabTextActive: {
     color: THEME.colors.textPrimary,
   },
   list: {
     gap: THEME.spacing.md,
-    marginTop: 4,
+    marginTop: 6,
   },
-  journalCard: {
-    padding: THEME.spacing.md,
-    gap: 8,
+  editorialCard: {
+    padding: THEME.spacing.lg,
+    gap: 10,
   },
-  journalCardHeader: {
+  cardTopRow: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
   },
-  categoryTag: {
-    backgroundColor: 'rgba(255, 255, 255, 0.06)',
-    paddingHorizontal: 6,
-    paddingVertical: 2,
-    borderRadius: 4,
-  },
-  categoryTagText: {
-    color: THEME.colors.textSecondary,
-    fontSize: 9,
+  itemNumberText: {
+    color: THEME.colors.textTertiary,
+    fontSize: 10,
     fontWeight: '800',
-  },
-  dateAndStatus: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 6,
+    letterSpacing: 1.2,
   },
   dateText: {
     color: THEME.colors.textTertiary,
-    fontSize: 10,
-  },
-  statusDot: {
-    width: 6,
-    height: 6,
-    borderRadius: 3,
-  },
-  statusDotActive: {
-    backgroundColor: THEME.colors.secondary,
-  },
-  statusDotResolved: {
-    backgroundColor: THEME.colors.accentGreen,
+    fontSize: 11,
   },
   cardTitle: {
     color: THEME.colors.textPrimary,
-    fontSize: THEME.typography.sizes.base,
-    fontWeight: '700',
-    lineHeight: 22,
+    fontSize: THEME.typography.sizes.lg,
+    fontWeight: '800',
+    lineHeight: 24,
   },
-  statsRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 8,
-  },
-  statVal: {
+  metaLine: {
     color: THEME.colors.textSecondary,
-    fontSize: 11,
+    fontSize: THEME.typography.sizes.xs,
     fontWeight: '600',
   },
-  sep: {
-    color: THEME.colors.textTertiary,
-  },
-  cardFooter: {
+  cardBottomRow: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
     borderTopWidth: 1,
     borderTopColor: 'rgba(255, 255, 255, 0.06)',
-    paddingTop: 6,
+    paddingTop: 10,
     marginTop: 2,
   },
-  footerTradeoff: {
-    flex: 1,
-    color: THEME.colors.textTertiary,
+  branchBadge: {
+    borderWidth: 1,
+    paddingHorizontal: 8,
+    paddingVertical: 3,
+    borderRadius: 4,
+  },
+  branchBadgeText: {
     fontSize: 10,
-    marginRight: 8,
+    fontWeight: '800',
+    letterSpacing: 0.5,
+  },
+  confidenceRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 6,
   },
   confidenceText: {
-    color: THEME.colors.accentGreen,
-    fontSize: 10,
-    fontWeight: '700',
+    color: THEME.colors.textSecondary,
+    fontSize: 11,
+    fontWeight: '600',
+  },
+  chevron: {
+    color: THEME.colors.textTertiary,
+    fontSize: 13,
   },
   emptyContainer: {
     alignItems: 'center',
-    paddingVertical: 40,
-    gap: 6,
-  },
-  emptyIcon: {
-    fontSize: 32,
+    paddingVertical: 56,
+    gap: 10,
   },
   emptyTitle: {
     color: THEME.colors.textPrimary,
-    fontSize: THEME.typography.sizes.base,
-    fontWeight: '700',
+    fontSize: THEME.typography.sizes.lg,
+    fontWeight: '800',
   },
   emptyDesc: {
     color: THEME.colors.textTertiary,
     fontSize: THEME.typography.sizes.xs,
     textAlign: 'center',
+    maxWidth: 240,
+    lineHeight: 18,
+  },
+  emptyActionBtn: {
+    backgroundColor: THEME.colors.primaryText,
+    paddingHorizontal: 18,
+    paddingVertical: 10,
+    borderRadius: THEME.borderRadius.full,
+    marginTop: 8,
+  },
+  emptyActionBtnText: {
+    color: THEME.colors.background,
+    fontSize: THEME.typography.sizes.xs,
+    fontWeight: '800',
   },
 });

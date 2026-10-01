@@ -266,7 +266,7 @@ export default function App() {
           onPress={() => setCurrentTab('profile')}
         >
           <Text style={[styles.navIcon, currentTab === 'profile' && styles.navIconActive]}>⚙️</Text>
-          <Text style={[styles.navLabel, currentTab === 'profile' && styles.navLabelActive]}>Settings</Text>
+          <Text style={[styles.navLabel, currentTab === 'profile' && styles.navLabelActive]}>Profile</Text>
         </TouchableOpacity>
       </View>
 
@@ -305,13 +305,13 @@ const styles = StyleSheet.create({
     marginTop: 12,
   },
   loadingSub: {
-    color: THEME.colors.secondary,
+    color: THEME.colors.textSecondary,
     fontSize: THEME.typography.sizes.xs,
     letterSpacing: 0.5,
   },
   navBar: {
     flexDirection: 'row',
-    backgroundColor: 'rgba(10, 14, 26, 0.95)',
+    backgroundColor: THEME.colors.obsidian,
     borderTopWidth: 1,
     borderTopColor: 'rgba(255, 255, 255, 0.08)',
     paddingVertical: 10,
@@ -327,7 +327,7 @@ const styles = StyleSheet.create({
   },
   navIcon: {
     fontSize: 18,
-    opacity: 0.5,
+    opacity: 0.45,
   },
   navIconActive: {
     opacity: 1,
@@ -338,29 +338,29 @@ const styles = StyleSheet.create({
     fontWeight: '600',
   },
   navLabelActive: {
-    color: THEME.colors.secondary,
+    color: THEME.colors.textPrimary,
     fontWeight: '800',
   },
   centerAddBtn: {
     width: 48,
     height: 48,
     borderRadius: 24,
-    backgroundColor: THEME.colors.primary,
+    backgroundColor: THEME.colors.primaryText,
     alignItems: 'center',
     justifyContent: 'center',
-    marginTop: -20,
-    borderWidth: 3,
+    marginTop: -16,
+    borderWidth: 2,
     borderColor: THEME.colors.background,
-    shadowColor: THEME.colors.primary,
+    shadowColor: '#000',
     shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.5,
-    shadowRadius: 10,
+    shadowOpacity: 0.4,
+    shadowRadius: 8,
     elevation: 6,
   },
   centerAddText: {
-    color: '#FFFFFF',
-    fontSize: 26,
-    fontWeight: 'bold',
-    marginTop: -3,
+    color: THEME.colors.background,
+    fontSize: 24,
+    fontWeight: '900',
+    marginTop: -2,
   },
 });

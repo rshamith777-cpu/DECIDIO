@@ -27,7 +27,7 @@ export const PaywallModal: React.FC<PaywallModalProps> = ({ visible, onClose, on
     try {
       const res = await revenueCat.purchasePackage(selectedPackage);
       if (res.success) {
-        Alert.alert('⚡ Welcome to Decidio Pro', 'Your full strategic foresight suite has been activated!');
+        Alert.alert('⚡ Welcome to DECIDIO PRO', 'Your complete personal decision intelligence suite is active!');
         onSuccess();
         onClose();
       } else {
@@ -45,11 +45,11 @@ export const PaywallModal: React.FC<PaywallModalProps> = ({ visible, onClose, on
     try {
       const restored = await revenueCat.restorePurchases();
       if (restored) {
-        Alert.alert('Purchases Restored', 'Your Pro membership is active.');
+        Alert.alert('Purchases Restored', 'Your DECIDIO PRO membership is active.');
         onSuccess();
         onClose();
       } else {
-        Alert.alert('No Subscription Found', 'No active subscription was found to restore.');
+        Alert.alert('No Subscription Found', 'No prior active subscription was found to restore.');
       }
     } finally {
       setIsLoading(false);
@@ -61,49 +61,28 @@ export const PaywallModal: React.FC<PaywallModalProps> = ({ visible, onClose, on
       <View style={styles.overlay}>
         <View style={styles.sheetContainer}>
           {/* Close Button */}
-          <TouchableOpacity style={styles.closeBtn} onPress={onClose}>
+          <TouchableOpacity style={styles.closeBtn} onPress={onClose} activeOpacity={0.8}>
             <Text style={styles.closeBtnText}>✕</Text>
           </TouchableOpacity>
 
           <ScrollView contentContainerStyle={styles.scrollContent} showsVerticalScrollIndicator={false}>
-            {/* Header */}
+            {/* Editorial Header */}
             <View style={styles.header}>
-              <View style={styles.proPill}>
-                <Text style={styles.proPillText}>POWERED BY REVENUECAT</Text>
-              </View>
-              <Text style={styles.title}>DECIDIO <Text style={styles.titleHighlight}>PRO</Text></Text>
+              <Text style={styles.eyebrow}>REVENUECAT MEMBERSHIP</Text>
+              <Text style={styles.title}>DECIDIO PRO</Text>
               <Text style={styles.subtitle}>
-                Simulate unlimited futures. Never make a blind life decision again.
+                Go deeper before you decide.
               </Text>
             </View>
 
-            {/* Feature Perks */}
+            {/* Feature Perks as specified in requirements */}
             <View style={styles.featuresContainer}>
-              <FeatureRow
-                icon="🔮"
-                title="Unlimited AI Decision Simulations"
-                desc="Simulate unlimited dilemmas with zero monthly caps"
-              />
-              <FeatureRow
-                icon="🧬"
-                title="Full Decision DNA Scorecards"
-                desc="Uncover Risk, Reversibility, Time intensity & Career Upside"
-              />
-              <FeatureRow
-                icon="🔄"
-                title="Interactive What-If Engine"
-                desc="Tweak cost, hours, and timeline to watch simulations recalculate live"
-              />
-              <FeatureRow
-                icon="🧠"
-                title="Personal Decision Memory"
-                desc="Track your blind spots (underestimating time, bias towards high risk)"
-              />
-              <FeatureRow
-                icon="📱"
-                title="Viral Decision Cards Export"
-                desc="Share beautiful anonymized future cards on social media"
-              />
+              <FeatureItem title="Unlimited simulations" desc="Model as many dilemmas as needed without monthly caps" />
+              <FeatureItem title="Advanced What-If" desc="Dynamic assumption testing with real-time recalculation" />
+              <FeatureItem title="Decision DNA" desc="Deep 6-dimension factor analysis and archetype classification" />
+              <FeatureItem title="URL Intelligence" desc="Audit courses, job offers, and purchases directly from link signals" />
+              <FeatureItem title="Personal Decision Memory" desc="Track cognitive blindspots and past outcome accuracy" />
+              <FeatureItem title="Advanced AI analysis" desc="Deep constraint decomposition and hidden trade-off synthesis" />
             </View>
 
             {/* Packages */}
@@ -115,6 +94,7 @@ export const PaywallModal: React.FC<PaywallModalProps> = ({ visible, onClose, on
                     key={pkg.identifier}
                     style={[styles.packageCard, isSelected && styles.packageCardSelected]}
                     onPress={() => setSelectedPackage(pkg.identifier)}
+                    activeOpacity={0.85}
                   >
                     {pkg.badge && (
                       <View style={styles.packageBadge}>
@@ -143,12 +123,12 @@ export const PaywallModal: React.FC<PaywallModalProps> = ({ visible, onClose, on
             </View>
 
             {/* Purchase CTA */}
-            <TouchableOpacity style={styles.ctaButton} onPress={handlePurchase} disabled={isLoading}>
+            <TouchableOpacity style={styles.ctaButton} onPress={handlePurchase} disabled={isLoading} activeOpacity={0.85}>
               {isLoading ? (
-                <ActivityIndicator color="#07090E" />
+                <ActivityIndicator color={THEME.colors.background} />
               ) : (
                 <Text style={styles.ctaText}>
-                  {selectedPackage.includes('annual') ? 'Start 3-Day Free Trial & Subscribe' : 'Upgrade to Decidio Pro'}
+                  {selectedPackage.includes('annual') ? 'Start 3-Day Free Trial & Subscribe' : 'Unlock DECIDIO PRO'}
                 </Text>
               )}
             </TouchableOpacity>
@@ -159,17 +139,9 @@ export const PaywallModal: React.FC<PaywallModalProps> = ({ visible, onClose, on
                 <Text style={styles.footerLink}>Restore Purchases</Text>
               </TouchableOpacity>
               <Text style={styles.footerDot}>•</Text>
-              <TouchableOpacity onPress={() => Alert.alert('Demo Notice', 'RevenueCat Shipathon 2026 Submission')}>
-                <Text style={styles.footerLink}>Terms & Privacy</Text>
+              <TouchableOpacity onPress={() => Alert.alert('Privacy & Terms', 'DECIDIO respects your personal decision privacy.')}>
+                <Text style={styles.footerLink}>Privacy & Terms</Text>
               </TouchableOpacity>
-            </View>
-
-            {/* Sandbox Notice */}
-            <View style={styles.sandboxBox}>
-              <Text style={styles.sandboxTitle}>💡 HACKATHON EVALUATION MODE</Text>
-              <Text style={styles.sandboxText}>
-                RevenueCat StoreKit & Google Play billing seamlessly configured. In test builds, tap Upgrade to instantly verify Pro entitlements!
-              </Text>
             </View>
           </ScrollView>
         </View>
@@ -178,9 +150,9 @@ export const PaywallModal: React.FC<PaywallModalProps> = ({ visible, onClose, on
   );
 };
 
-const FeatureRow: React.FC<{ icon: string; title: string; desc: string }> = ({ icon, title, desc }) => (
+const FeatureItem: React.FC<{ title: string; desc: string }> = ({ title, desc }) => (
   <View style={styles.featureItem}>
-    <Text style={styles.featureIcon}>{icon}</Text>
+    <Text style={styles.featureCheck}>✓</Text>
     <View style={styles.featureText}>
       <Text style={styles.featureTitle}>{title}</Text>
       <Text style={styles.featureDesc}>{desc}</Text>
@@ -191,17 +163,17 @@ const FeatureRow: React.FC<{ icon: string; title: string; desc: string }> = ({ i
 const styles = StyleSheet.create({
   overlay: {
     flex: 1,
-    backgroundColor: 'rgba(0, 0, 0, 0.85)',
+    backgroundColor: 'rgba(8, 9, 9, 0.88)',
     justifyContent: 'flex-end',
   },
   sheetContainer: {
-    backgroundColor: THEME.colors.backgroundSecondary,
+    backgroundColor: THEME.colors.surface,
     borderTopLeftRadius: THEME.borderRadius.xl,
     borderTopRightRadius: THEME.borderRadius.xl,
     borderTopWidth: 1,
-    borderColor: 'rgba(124, 77, 255, 0.4)',
+    borderColor: THEME.colors.cardBorder,
     maxHeight: '92%',
-    paddingBottom: 24,
+    paddingBottom: 32,
   },
   closeBtn: {
     position: 'absolute',
@@ -211,13 +183,15 @@ const styles = StyleSheet.create({
     width: 32,
     height: 32,
     borderRadius: 16,
-    backgroundColor: 'rgba(255, 255, 255, 0.1)',
+    backgroundColor: THEME.colors.elevatedSurface,
     alignItems: 'center',
     justifyContent: 'center',
+    borderWidth: 1,
+    borderColor: THEME.colors.cardBorder,
   },
   closeBtnText: {
     color: THEME.colors.textSecondary,
-    fontSize: 14,
+    fontSize: 13,
     fontWeight: 'bold',
   },
   scrollContent: {
@@ -227,42 +201,30 @@ const styles = StyleSheet.create({
   header: {
     alignItems: 'center',
     marginBottom: THEME.spacing.lg,
+    gap: 4,
   },
-  proPill: {
-    backgroundColor: 'rgba(124, 77, 255, 0.2)',
-    paddingHorizontal: 10,
-    paddingVertical: 4,
-    borderRadius: THEME.borderRadius.full,
-    borderWidth: 1,
-    borderColor: THEME.colors.primary,
-    marginBottom: 8,
-  },
-  proPillText: {
-    color: THEME.colors.primaryLight,
+  eyebrow: {
+    color: THEME.colors.textTertiary,
     fontSize: 10,
     fontWeight: '800',
-    letterSpacing: 1,
+    letterSpacing: 1.5,
   },
   title: {
     color: THEME.colors.textPrimary,
     fontSize: THEME.typography.sizes.xxl,
     fontWeight: '900',
-    letterSpacing: 1,
-  },
-  titleHighlight: {
-    color: THEME.colors.secondary,
+    letterSpacing: -0.5,
   },
   subtitle: {
     color: THEME.colors.textSecondary,
     fontSize: THEME.typography.sizes.sm,
     textAlign: 'center',
-    marginTop: 4,
-    maxWidth: 320,
+    marginTop: 2,
   },
   featuresContainer: {
-    gap: THEME.spacing.md,
+    gap: 12,
     marginBottom: THEME.spacing.lg,
-    backgroundColor: 'rgba(255, 255, 255, 0.02)',
+    backgroundColor: THEME.colors.background,
     padding: THEME.spacing.md,
     borderRadius: THEME.borderRadius.lg,
     borderWidth: 1,
@@ -270,11 +232,14 @@ const styles = StyleSheet.create({
   },
   featureItem: {
     flexDirection: 'row',
-    gap: THEME.spacing.sm,
-    alignItems: 'center',
+    gap: 10,
+    alignItems: 'flex-start',
   },
-  featureIcon: {
-    fontSize: 20,
+  featureCheck: {
+    color: THEME.colors.accentGreen,
+    fontSize: 12,
+    fontWeight: '900',
+    marginTop: 1,
   },
   featureText: {
     flex: 1,
@@ -288,22 +253,23 @@ const styles = StyleSheet.create({
     color: THEME.colors.textTertiary,
     fontSize: 10,
     marginTop: 1,
+    lineHeight: 14,
   },
   packagesContainer: {
     gap: THEME.spacing.md,
     marginBottom: THEME.spacing.lg,
   },
   packageCard: {
-    backgroundColor: 'rgba(255, 255, 255, 0.04)',
+    backgroundColor: THEME.colors.elevatedSurface,
     borderWidth: 1,
     borderColor: THEME.colors.cardBorder,
-    borderRadius: THEME.borderRadius.lg,
+    borderRadius: THEME.borderRadius.md,
     padding: THEME.spacing.md,
     position: 'relative',
   },
   packageCardSelected: {
-    borderColor: THEME.colors.secondary,
-    backgroundColor: 'rgba(0, 229, 255, 0.08)',
+    borderColor: THEME.colors.primaryText,
+    backgroundColor: THEME.colors.surface,
   },
   packageBadge: {
     position: 'absolute',
@@ -315,7 +281,7 @@ const styles = StyleSheet.create({
     borderRadius: THEME.borderRadius.full,
   },
   packageBadgeText: {
-    color: '#07090E',
+    color: '#080909',
     fontSize: 9,
     fontWeight: '900',
     letterSpacing: 0.5,
@@ -349,40 +315,36 @@ const styles = StyleSheet.create({
     fontWeight: '800',
   },
   packagePriceSelected: {
-    color: THEME.colors.secondary,
+    color: THEME.colors.textPrimary,
   },
   radioCircle: {
     width: 18,
     height: 18,
     borderRadius: 9,
-    borderWidth: 2,
+    borderWidth: 1.5,
     borderColor: THEME.colors.cardBorder,
     alignItems: 'center',
     justifyContent: 'center',
   },
   radioCircleSelected: {
-    borderColor: THEME.colors.secondary,
+    borderColor: THEME.colors.primaryText,
   },
   radioDot: {
     width: 8,
     height: 8,
     borderRadius: 4,
-    backgroundColor: THEME.colors.secondary,
+    backgroundColor: THEME.colors.primaryText,
   },
   ctaButton: {
-    backgroundColor: THEME.colors.secondary,
+    backgroundColor: THEME.colors.primaryText,
     paddingVertical: 14,
-    borderRadius: THEME.borderRadius.md,
+    borderRadius: THEME.borderRadius.sm,
     alignItems: 'center',
     marginBottom: THEME.spacing.md,
-    shadowColor: THEME.colors.secondary,
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.35,
-    shadowRadius: 10,
   },
   ctaText: {
-    color: '#07090E',
-    fontSize: THEME.typography.sizes.sm,
+    color: THEME.colors.background,
+    fontSize: THEME.typography.sizes.xs,
     fontWeight: '900',
     letterSpacing: 0.5,
   },
@@ -391,7 +353,7 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
     gap: 8,
-    marginBottom: THEME.spacing.md,
+    marginTop: 4,
   },
   footerLink: {
     color: THEME.colors.textTertiary,
@@ -400,24 +362,5 @@ const styles = StyleSheet.create({
   footerDot: {
     color: THEME.colors.textTertiary,
     fontSize: 11,
-  },
-  sandboxBox: {
-    backgroundColor: 'rgba(255, 255, 255, 0.03)',
-    borderRadius: THEME.borderRadius.sm,
-    padding: THEME.spacing.sm,
-    borderWidth: 1,
-    borderColor: 'rgba(255, 255, 255, 0.05)',
-  },
-  sandboxTitle: {
-    color: THEME.colors.accentAmber,
-    fontSize: 9,
-    fontWeight: '800',
-    letterSpacing: 0.5,
-    marginBottom: 2,
-  },
-  sandboxText: {
-    color: THEME.colors.textTertiary,
-    fontSize: 10,
-    lineHeight: 14,
   },
 });

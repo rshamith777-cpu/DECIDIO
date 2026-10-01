@@ -27,86 +27,144 @@ export const InsightsScreen: React.FC<InsightsScreenProps> = ({
 }) => {
   const insights = StorageService.calculateInsights(decisions);
 
+  const totalDecisions = decisions.length;
+  const resolvedDecisions = decisions.filter(d => d.status === 'resolved').length;
+  const activeDecisions = decisions.filter(d => d.status === 'active').length;
+
+  // Real data-driven behavioral observations
+  const memoryLearnings: string[] = [];
+
+  if (totalDecisions > 0) {
+    if (insights.underestimatedTimeFreq && insights.underestimatedTimeFreq !== '0%') {
+      memoryLearnings.push(
+        'You underestimated time commitment in several recent decisions. Consider buffering weekly time estimates by 20%.'
+      );
+    }
+    const reversibleCount = decisions.filter(d => (d.dna?.reversibilityScore || 0) >= 60).length;
+    if (reversibleCount > 0) {
+      memoryLearnings.push(
+        'You tend to follow through more strongly on reversible decisions where the cost of changing course is low.'
+      );
+    }
+    if (insights.avgConfidence >= 75) {
+      memoryLearnings.push(
+        `High initial conviction: Your average confidence across scenarios is ${insights.avgConfidence}%.`
+      );
+    } else {
+      memoryLearnings.push(
+        `Thoughtful deliberation: Your average confidence across scenarios is ${insights.avgConfidence}%, reflecting measured risk assessment.`
+      );
+    }
+    if (insights.patterns && insights.patterns.length > 0) {
+      insights.patterns.forEach(p => {
+        if (!memoryLearnings.includes(p)) {
+          memoryLearnings.push(p);
+        }
+      });
+    }
+  }
+
   return (
     <SafeAreaView style={styles.safeArea}>
       <ScrollView contentContainerStyle={styles.container}>
         {/* Header */}
         <View style={styles.header}>
-          <Text style={styles.title}>PERSONAL DECISION MEMORY</Text>
+          <Text style={styles.eyebrow}>AI MEMORY</Text>
+          <Text style={styles.title}>Decision Memory</Text>
           <Text style={styles.subtitle}>
-            AI learning engine detecting your subconscious decision biases
+            DECIDIO gets more useful as you make more decisions.
           </Text>
         </View>
 
-        {/* Primary Bias Spotlight */}
-        <GlassCard highlight glowColor={THEME.colors.primaryGlow} borderColor={THEME.colors.primary}>
-          <View style={styles.biasHeader}>
-            <Text style={styles.biasEmoji}>🧠</Text>
-            <View>
-              <Text style={styles.biasTag}>DOMINANT PROFILE ARCHETYPE</Text>
-              <Text style={styles.biasName}>{insights.primaryBias}</Text>
-            </View>
+        {/* 3 Macro Metrics */}
+        <View style={styles.macroRow}>
+          <GlassCard style={styles.macroCard}>
+            <Text style={styles.macroNumber}>{totalDecisions}</Text>
+            <Text style={styles.macroLabel}>Decisions</Text>
+          </GlassCard>
+
+          <GlassCard style={styles.macroCard}>
+            <Text style={[styles.macroNumber, { color: THEME.colors.accentGreen }]}>
+              {resolvedDecisions}
+            </Text>
+            <Text style={styles.macroLabel}>Resolved</Text>
+          </GlassCard>
+
+          <GlassCard style={styles.macroCard}>
+            <Text style={[styles.macroNumber, { color: THEME.colors.accentCyan }]}>
+              {activeDecisions}
+            </Text>
+            <Text style={styles.macroLabel}>Active</Text>
+          </GlassCard>
+        </View>
+
+        {/* Primary Archetype Spotlight */}
+        <GlassCard style={styles.archetypeCard}>
+          <View style={styles.archetypeTop}>
+            <Text style={styles.archetypeTag}>DOMINANT PROFILE ARCHETYPE</Text>
+            <Text style={styles.archetypeTitle}>{insights.primaryBias}</Text>
           </View>
-          <Text style={styles.biasSummary}>
-            Based on your simulated and resolved decisions, you consistently lean toward asymmetric career acceleration while under-budgeting the weekly cognitive load.
+          <Text style={styles.archetypeDescription}>
+            Based on your simulated and resolved decisions, you consistently lean toward strategic growth while under-budgeting the cumulative weekly cognitive load.
           </Text>
         </GlassCard>
 
-        {/* Memory Patterns & Blind Spots */}
+        {/* What DECIDIO Has Learned */}
         <View style={styles.section}>
-          <Text style={styles.sectionTitle}>DETECTED PATTERNS & BEHAVIORAL BLIND SPOTS</Text>
+          <Text style={styles.sectionHeading}>WHAT DECIDIO HAS LEARNED</Text>
 
-          <View style={styles.patternsList}>
-            {insights.patterns.map((pat, idx) => (
-              <GlassCard key={idx} style={styles.patternCard}>
-                <View style={styles.patternIconBox}>
-                  <Text style={styles.patternIcon}>✦</Text>
-                </View>
-                <Text style={styles.patternText}>{pat}</Text>
-              </GlassCard>
-            ))}
-          </View>
+          {memoryLearnings.length === 0 ? (
+            <GlassCard style={styles.emptyMemoryCard}>
+              <Text style={styles.emptyMemoryTitle}>No decisions recorded yet.</Text>
+              <Text style={styles.emptyMemoryText}>
+                Simulate your first decision from the Home tab to begin building your personal decision intelligence profile.
+              </Text>
+            </GlassCard>
+          ) : (
+            <View style={styles.learningList}>
+              {memoryLearnings.map((learning, idx) => (
+                <GlassCard key={idx} style={styles.learningCard}>
+                  <View style={styles.dotIndicator} />
+                  <Text style={styles.learningText}>{learning}</Text>
+                </GlassCard>
+              ))}
+            </View>
+          )}
         </View>
 
-        {/* Strategic Foresight Metrics */}
+        {/* Capital & Confidence Summary */}
         <View style={styles.section}>
-          <Text style={styles.sectionTitle}>MACRO FORESIGHT STATS</Text>
-
-          <View style={styles.statsGrid}>
-            <GlassCard style={styles.statCard}>
-              <Text style={styles.statNumber}>₹{(insights.totalCapitalSimulated / 1000).toFixed(0)}k</Text>
-              <Text style={styles.statLabel}>Capital Modeled</Text>
+          <Text style={styles.sectionHeading}>CAPITAL & COMMITMENT TOTALS</Text>
+          <View style={styles.totalsGrid}>
+            <GlassCard style={styles.totalCard}>
+              <Text style={styles.totalValue}>
+                ₹{Math.round(insights.totalCapitalSimulated).toLocaleString()}
+              </Text>
+              <Text style={styles.totalLabel}>Total Capital Modeled</Text>
             </GlassCard>
 
-            <GlassCard style={styles.statCard}>
-              <Text style={[styles.statNumber, { color: THEME.colors.secondary }]}>
+            <GlassCard style={styles.totalCard}>
+              <Text style={[styles.totalValue, { color: THEME.colors.accentViolet }]}>
                 {insights.avgConfidence}%
               </Text>
-              <Text style={styles.statLabel}>Avg Confidence</Text>
-            </GlassCard>
-
-            <GlassCard style={styles.statCard}>
-              <Text style={[styles.statNumber, { color: THEME.colors.accentGreen }]}>
-                {insights.underestimatedTimeFreq}
-              </Text>
-              <Text style={styles.statLabel}>Time Drag Alert</Text>
+              <Text style={styles.totalLabel}>Average Conviction</Text>
             </GlassCard>
           </View>
         </View>
 
-        {/* Pro Teaser / Lock for Advanced Retrospective Analytics */}
+        {/* Pro Teaser */}
         {!isPro && (
           <TouchableOpacity onPress={onOpenPaywall} activeOpacity={0.85}>
-            <GlassCard highlight glowColor={THEME.colors.secondaryGlow} borderColor={THEME.colors.secondary} style={styles.proCard}>
+            <GlassCard highlight borderColor={THEME.colors.accentViolet} style={styles.proCard}>
               <View style={styles.proHeader}>
-                <Text style={styles.proBadge}>DECIDIO PRO FEATURE</Text>
-                <Text style={styles.proTitle}>Deep Psychological Decision Auditing</Text>
+                <Text style={styles.proTag}>DECIDIO PRO</Text>
+                <Text style={styles.proTitle}>Deep Longitudinal Intelligence</Text>
               </View>
               <Text style={styles.proDesc}>
-                Unlock 1-year longitudinal tracking, prediction accuracy scores, and AI cognitive bias countermeasures powered by RevenueCat.
+                Unlock longitudinal outcome audits, cognitive blindspot countermeasures, and multi-year trajectory mapping.
               </Text>
               <View style={styles.upgradeBtn}>
-                <Text style={styles.upgradeBtnText}>Unlock Deep Memory with Pro →</Text>
+                <Text style={styles.upgradeBtnText}>Explore DECIDIO Pro →</Text>
               </View>
             </GlassCard>
           </TouchableOpacity>
@@ -123,43 +181,69 @@ const styles = StyleSheet.create({
   },
   container: {
     padding: THEME.spacing.lg,
-    paddingBottom: 40,
+    paddingBottom: 60,
     gap: THEME.spacing.xl,
   },
   header: {
     gap: 4,
+    marginTop: 4,
+  },
+  eyebrow: {
+    color: THEME.colors.textTertiary,
+    fontSize: 10,
+    fontWeight: '800',
+    letterSpacing: 1.5,
   },
   title: {
     color: THEME.colors.textPrimary,
-    fontSize: THEME.typography.sizes.xl,
+    fontSize: THEME.typography.sizes.xxl,
     fontWeight: '900',
-    letterSpacing: 1.2,
+    letterSpacing: -0.5,
   },
   subtitle: {
-    color: THEME.colors.textTertiary,
+    color: THEME.colors.textSecondary,
     fontSize: THEME.typography.sizes.xs,
+    lineHeight: 18,
   },
-  biasHeader: {
+  macroRow: {
     flexDirection: 'row',
+    gap: 8,
+  },
+  macroCard: {
+    flex: 1,
+    padding: THEME.spacing.md,
     alignItems: 'center',
-    gap: 12,
-    marginBottom: THEME.spacing.sm,
+    gap: 2,
   },
-  biasEmoji: {
-    fontSize: 28,
+  macroNumber: {
+    color: THEME.colors.textPrimary,
+    fontSize: THEME.typography.sizes.xl,
+    fontWeight: '900',
   },
-  biasTag: {
-    color: THEME.colors.primaryLight,
+  macroLabel: {
+    color: THEME.colors.textTertiary,
+    fontSize: 11,
+    fontWeight: '700',
+  },
+  archetypeCard: {
+    padding: THEME.spacing.lg,
+    gap: 8,
+  },
+  archetypeTop: {
+    gap: 2,
+  },
+  archetypeTag: {
+    color: THEME.colors.accentViolet,
     fontSize: 9,
     fontWeight: '800',
     letterSpacing: 1,
   },
-  biasName: {
+  archetypeTitle: {
     color: THEME.colors.textPrimary,
     fontSize: THEME.typography.sizes.lg,
     fontWeight: '800',
   },
-  biasSummary: {
+  archetypeDescription: {
     color: THEME.colors.textSecondary,
     fontSize: THEME.typography.sizes.xs,
     lineHeight: 18,
@@ -167,69 +251,79 @@ const styles = StyleSheet.create({
   section: {
     gap: THEME.spacing.sm,
   },
-  sectionTitle: {
+  sectionHeading: {
     color: THEME.colors.textTertiary,
     fontSize: 10,
     fontWeight: '800',
     letterSpacing: 1.2,
   },
-  patternsList: {
+  learningList: {
     gap: 8,
   },
-  patternCard: {
+  learningCard: {
     flexDirection: 'row',
-    alignItems: 'center',
+    alignItems: 'flex-start',
     gap: 12,
     padding: THEME.spacing.md,
   },
-  patternIconBox: {
-    width: 24,
-    height: 24,
-    borderRadius: 12,
-    backgroundColor: 'rgba(0, 229, 255, 0.1)',
-    alignItems: 'center',
-    justifyContent: 'center',
+  dotIndicator: {
+    width: 6,
+    height: 6,
+    borderRadius: 3,
+    backgroundColor: THEME.colors.accentViolet,
+    marginTop: 6,
   },
-  patternIcon: {
-    color: THEME.colors.secondary,
-    fontSize: 12,
-  },
-  patternText: {
+  learningText: {
     flex: 1,
     color: THEME.colors.textPrimary,
     fontSize: THEME.typography.sizes.xs,
-    lineHeight: 18,
-    fontWeight: '600',
+    lineHeight: 19,
+    fontWeight: '500',
   },
-  statsGrid: {
+  emptyMemoryCard: {
+    padding: THEME.spacing.lg,
+    gap: 6,
+  },
+  emptyMemoryTitle: {
+    color: THEME.colors.textPrimary,
+    fontSize: THEME.typography.sizes.sm,
+    fontWeight: '700',
+  },
+  emptyMemoryText: {
+    color: THEME.colors.textTertiary,
+    fontSize: THEME.typography.sizes.xs,
+    lineHeight: 18,
+  },
+  totalsGrid: {
     flexDirection: 'row',
     gap: 8,
   },
-  statCard: {
+  totalCard: {
     flex: 1,
     padding: THEME.spacing.md,
     alignItems: 'center',
+    gap: 4,
   },
-  statNumber: {
+  totalValue: {
     color: THEME.colors.textPrimary,
     fontSize: THEME.typography.sizes.lg,
-    fontWeight: '900',
+    fontWeight: '800',
   },
-  statLabel: {
+  totalLabel: {
     color: THEME.colors.textTertiary,
-    fontSize: 9,
-    marginTop: 2,
+    fontSize: 10,
+    fontWeight: '600',
     textAlign: 'center',
   },
   proCard: {
     padding: THEME.spacing.lg,
-    gap: 8,
+    gap: 10,
   },
   proHeader: {
-    gap: 4,
+    gap: 2,
   },
-  proBadge: {
-    color: THEME.colors.secondary,
+  proTag: {
+    color: THEME.colors.accentViolet,
     fontSize: 9,
     fontWeight: '900',
     letterSpacing: 1,
@@ -242,17 +336,17 @@ const styles = StyleSheet.create({
   proDesc: {
     color: THEME.colors.textSecondary,
     fontSize: THEME.typography.sizes.xs,
-    lineHeight: 17,
+    lineHeight: 18,
   },
   upgradeBtn: {
-    backgroundColor: THEME.colors.secondary,
+    backgroundColor: THEME.colors.primaryText,
     paddingVertical: 10,
     borderRadius: THEME.borderRadius.sm,
     alignItems: 'center',
-    marginTop: 6,
+    marginTop: 4,
   },
   upgradeBtnText: {
-    color: '#07090E',
+    color: THEME.colors.background,
     fontSize: THEME.typography.sizes.xs,
     fontWeight: '800',
   },
