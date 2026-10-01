@@ -7,9 +7,11 @@ import {
   TouchableOpacity,
   SafeAreaView,
   Alert,
+  TextInput,
 } from 'react-native';
 import { THEME } from '../constants/theme';
 import { DecisionItem, WhatIfAssumptions } from '../types';
+import { GlassCard } from '../components/GlassCard';
 import { FutureCard } from '../components/FutureCard';
 import { DecisionDNACard } from '../components/DecisionDNACard';
 import { TradeOffCard } from '../components/TradeOffCard';
@@ -38,7 +40,16 @@ export const SimulationDetailScreen: React.FC<SimulationDetailScreenProps> = ({
   const [currentDecision, setCurrentDecision] = useState<DecisionItem>(decision);
   const [activeFutureTab, setActiveFutureTab] = useState<'optionA' | 'optionB' | 'optionC'>('optionA');
   const [showShareModal, setShowShareModal] = useState(false);
-  const [showResolveModal, setShowResolveModal] = useState(false);
+  const [showCommitModal, setShowCommitModal] = useState(false);
+  const [pendingChoice, setPendingChoice] = useState<'optionA' | 'optionB' | 'optionC'>('optionA');
+  const [satisfactionRating, setSatisfactionRating] = useState(5);
+  const [commitmentNotes, setCommitmentNotes] = useState('');
+  const [toastMessage, setToastMessage] = useState<string | null>(null);
+
+  const showToast = (msg: string) => {
+    setToastMessage(msg);
+    setTimeout(() => setToastMessage(null), 3500);
+  };
 
   // What-If Assumption change
   const handleWhatIfChange = (newAssumptions: WhatIfAssumptions) => {
@@ -76,24 +87,45 @@ export const SimulationDetailScreen: React.FC<SimulationDetailScreenProps> = ({
     setCurrentDecision(updated);
     onUpdate(updated);
     StorageService.updateDecision(updated);
+    showToast(!currentDecision.timeline.find(c => c.id === checkpointId)?.isCompleted ? '✓ Checkpoint marked complete' : 'Checkpoint reverted');
   };
 
-  // Resolve Decision
-  const handleResolve = (chosen: 'optionA' | 'optionB' | 'optionC') => {
+  // Start Commitment Flow
+  const handleInitiateCommit = (chosen: 'optionA' | 'optionB' | 'optionC') => {
+    setPendingChoice(chosen);
+    setCommitmentNotes(`Committed to ${currentDecision.scenarios[chosen].label}. Executing plan.`);
+    setShowCommitModal(true);
+  };
+
+  // Finalize Resolve
+  const handleFinalizeCommit = () => {
     const updated: DecisionItem = {
       ...currentDecision,
       status: 'resolved',
       resolvedOutcome: {
-        chosenOption: chosen,
+        chosenOption: pendingChoice,
         date: Date.now(),
-        rating: 5,
-        notes: `Executed ${currentDecision.scenarios[chosen].label}. Tracking outcome.`,
+        rating: satisfactionRating,
+        notes: commitmentNotes.trim() || `Committed to ${currentDecision.scenarios[pendingChoice].label}`,
       },
     };
     setCurrentDecision(updated);
     onUpdate(updated);
     StorageService.updateDecision(updated);
-    Alert.alert('Decision Resolved 🎯', `Marked as resolved with ${currentDecision.scenarios[chosen].label}. This trains your Decision Memory!`);
+    setShowCommitModal(false);
+    showToast(`🎯 Committed to ${currentDecision.scenarios[pendingChoice].label}! Saved to Decision Memory.`);
+  };
+
+  const handleUndoCommit = () => {
+    const updated: DecisionItem = {
+      ...currentDecision,
+      status: 'active',
+      resolvedOutcome: undefined,
+    };
+    setCurrentDecision(updated);
+    onUpdate(updated);
+    StorageService.updateDecision(updated);
+    showToast('Decision status reverted to Active Simulation');
   };
 
   const handleDelete = () => {
@@ -255,40 +287,150 @@ export const SimulationDetailScreen: React.FC<SimulationDetailScreenProps> = ({
           </View>
         </View>
 
-        {/* Resolve Choice Action */}
-        <View style={styles.resolveSection}>
-          <Text style={styles.sectionTitle}>READY TO COMMIT?</Text>
-          <Text style={styles.resolveSub}>Select which branch you have chosen in real life:</Text>
-
-          <View style={styles.resolveBtnGroup}>
-            <TouchableOpacity
-              style={[styles.resolveBtn, { borderColor: THEME.colors.scenarioA }]}
-              onPress={() => handleResolve('optionA')}
-            >
-              <Text style={[styles.resolveBtnText, { color: THEME.colors.scenarioA }]}>
-                {currentDecision.scenarios.optionA.label}
+        {/* Resolve Choice Action / Committed Status Card */}
+        {currentDecision.status === 'resolved' && currentDecision.resolvedOutcome ? (
+          <GlassCard highlight borderColor={THEME.colors.accentGreen} glowColor="rgba(0, 230, 118, 0.25)" style={styles.resolvedCard}>
+            <View style={styles.resolvedHeader}>
+              <View style={styles.resolvedBadge}>
+                <Text style={styles.resolvedBadgeText}>🎯 COMMITTED & RESOLVED</Text>
+              </View>
+              <Text style={styles.resolvedDate}>
+                {new Date(currentDecision.resolvedOutcome.date).toLocaleDateString(undefined, { month: 'short', day: 'numeric', year: 'numeric' })}
               </Text>
-            </TouchableOpacity>
+            </View>
 
-            <TouchableOpacity
-              style={[styles.resolveBtn, { borderColor: THEME.colors.scenarioB }]}
-              onPress={() => handleResolve('optionB')}
-            >
-              <Text style={[styles.resolveBtnText, { color: THEME.colors.scenarioB }]}>
-                {currentDecision.scenarios.optionB.label}
+            <Text style={styles.resolvedChoiceLabel}>
+              Chosen Future Branch:
+            </Text>
+            <View style={styles.resolvedBranchPill}>
+              <Text style={styles.resolvedBranchText}>
+                {currentDecision.scenarios[currentDecision.resolvedOutcome.chosenOption]?.label || 'Committed Branch'}
               </Text>
-            </TouchableOpacity>
+            </View>
 
-            <TouchableOpacity
-              style={[styles.resolveBtn, { borderColor: THEME.colors.scenarioC }]}
-              onPress={() => handleResolve('optionC')}
-            >
-              <Text style={[styles.resolveBtnText, { color: THEME.colors.scenarioC }]}>
-                {currentDecision.scenarios.optionC.label}
+            {/* Star Rating */}
+            <View style={styles.ratingRow}>
+              <Text style={styles.ratingLabel}>Satisfaction Rating:</Text>
+              <Text style={styles.stars}>
+                {'★'.repeat(currentDecision.resolvedOutcome.rating)}
+                {'☆'.repeat(Math.max(0, 5 - currentDecision.resolvedOutcome.rating))}
               </Text>
-            </TouchableOpacity>
+            </View>
+
+            {/* Notes */}
+            {currentDecision.resolvedOutcome.notes ? (
+              <View style={styles.notesBox}>
+                <Text style={styles.notesText}>"{currentDecision.resolvedOutcome.notes}"</Text>
+              </View>
+            ) : null}
+
+            {/* Actions */}
+            <View style={styles.resolvedActions}>
+              <TouchableOpacity
+                style={styles.editCommitBtn}
+                onPress={() => handleInitiateCommit(currentDecision.resolvedOutcome?.chosenOption || 'optionA')}
+              >
+                <Text style={styles.editCommitText}>Update Notes / Rating</Text>
+              </TouchableOpacity>
+              <TouchableOpacity style={styles.undoCommitBtn} onPress={handleUndoCommit}>
+                <Text style={styles.undoCommitText}>Revert to Active</Text>
+              </TouchableOpacity>
+            </View>
+          </GlassCard>
+        ) : (
+          <View style={styles.resolveSection}>
+            <View style={styles.resolveHeaderRow}>
+              <View>
+                <Text style={styles.sectionTitle}>READY TO COMMIT?</Text>
+                <Text style={styles.resolveSub}>Select which branch you have chosen in real life:</Text>
+              </View>
+              <View style={styles.liveIndicatorDot} />
+            </View>
+
+            <View style={styles.resolveBtnGroup}>
+              <TouchableOpacity
+                style={[styles.resolveBtn, { borderColor: THEME.colors.scenarioA }]}
+                onPress={() => handleInitiateCommit('optionA')}
+              >
+                <Text style={[styles.resolveBtnText, { color: THEME.colors.scenarioA }]}>
+                  🔵 {currentDecision.scenarios.optionA.label} ({currentDecision.scenarios.optionA.actionType})
+                </Text>
+              </TouchableOpacity>
+
+              <TouchableOpacity
+                style={[styles.resolveBtn, { borderColor: THEME.colors.scenarioB }]}
+                onPress={() => handleInitiateCommit('optionB')}
+              >
+                <Text style={[styles.resolveBtnText, { color: THEME.colors.scenarioB }]}>
+                  🟣 {currentDecision.scenarios.optionB.label} ({currentDecision.scenarios.optionB.actionType})
+                </Text>
+              </TouchableOpacity>
+
+              <TouchableOpacity
+                style={[styles.resolveBtn, { borderColor: THEME.colors.scenarioC }]}
+                onPress={() => handleInitiateCommit('optionC')}
+              >
+                <Text style={[styles.resolveBtnText, { color: THEME.colors.scenarioC }]}>
+                  🔴 {currentDecision.scenarios.optionC.label} ({currentDecision.scenarios.optionC.actionType})
+                </Text>
+              </TouchableOpacity>
+            </View>
           </View>
-        </View>
+        )}
+
+        {/* Commitment Confirmation Modal */}
+        {showCommitModal && (
+          <View style={styles.modalOverlay}>
+            <GlassCard highlight borderColor={THEME.colors.accentGreen} glowColor="rgba(0, 230, 118, 0.3)" style={styles.commitModalCard}>
+              <Text style={styles.commitModalTitle}>Lock in Your Decision 🎯</Text>
+              <Text style={styles.commitModalSub}>
+                Committing to: <Text style={{ color: THEME.colors.textPrimary, fontWeight: 'bold' }}>{currentDecision.scenarios[pendingChoice].label}</Text>
+              </Text>
+
+              {/* Star Rating Selector */}
+              <View style={styles.ratingSelectorRow}>
+                <Text style={styles.ratingPrompt}>Rate Confidence / Satisfaction:</Text>
+                <View style={styles.starButtons}>
+                  {[1, 2, 3, 4, 5].map(star => (
+                    <TouchableOpacity key={star} onPress={() => setSatisfactionRating(star)}>
+                      <Text style={[styles.starBtnText, star <= satisfactionRating && styles.starBtnActive]}>
+                        ★
+                      </Text>
+                    </TouchableOpacity>
+                  ))}
+                </View>
+              </View>
+
+              {/* Notes Input */}
+              <TextInput
+                style={styles.commitNotesInput}
+                multiline
+                numberOfLines={3}
+                placeholder="Add reflection or execution notes..."
+                placeholderTextColor={THEME.colors.textTertiary}
+                value={commitmentNotes}
+                onChangeText={setCommitmentNotes}
+              />
+
+              {/* Action Buttons */}
+              <View style={styles.modalBtnRow}>
+                <TouchableOpacity style={styles.modalCancelBtn} onPress={() => setShowCommitModal(false)}>
+                  <Text style={styles.modalCancelText}>Cancel</Text>
+                </TouchableOpacity>
+                <TouchableOpacity style={styles.modalConfirmBtn} onPress={handleFinalizeCommit}>
+                  <Text style={styles.modalConfirmText}>Confirm Commitment ⚡</Text>
+                </TouchableOpacity>
+              </View>
+            </GlassCard>
+          </View>
+        )}
+
+        {/* Floating Toast Message */}
+        {toastMessage && (
+          <View style={styles.toastContainer}>
+            <Text style={styles.toastText}>{toastMessage}</Text>
+          </View>
+        )}
 
         {/* Share Modal */}
         <ShareDecisionModal
@@ -563,5 +705,224 @@ const styles = StyleSheet.create({
   resolveBtnText: {
     fontSize: THEME.typography.sizes.xs,
     fontWeight: '800',
+  },
+  resolveHeaderRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+  },
+  liveIndicatorDot: {
+    width: 8,
+    height: 8,
+    borderRadius: 4,
+    backgroundColor: THEME.colors.secondary,
+  },
+  resolvedCard: {
+    gap: THEME.spacing.sm,
+    padding: THEME.spacing.md,
+  },
+  resolvedHeader: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+  },
+  resolvedBadge: {
+    backgroundColor: 'rgba(0, 230, 118, 0.2)',
+    paddingHorizontal: 8,
+    paddingVertical: 4,
+    borderRadius: THEME.borderRadius.full,
+    borderWidth: 1,
+    borderColor: THEME.colors.accentGreen,
+  },
+  resolvedBadgeText: {
+    color: THEME.colors.accentGreen,
+    fontSize: 10,
+    fontWeight: '800',
+    letterSpacing: 0.5,
+  },
+  resolvedDate: {
+    color: THEME.colors.textTertiary,
+    fontSize: 10,
+  },
+  resolvedChoiceLabel: {
+    color: THEME.colors.textSecondary,
+    fontSize: THEME.typography.sizes.xs,
+    marginTop: 4,
+  },
+  resolvedBranchPill: {
+    backgroundColor: 'rgba(255, 255, 255, 0.06)',
+    paddingVertical: 8,
+    paddingHorizontal: 12,
+    borderRadius: THEME.borderRadius.md,
+    alignSelf: 'flex-start',
+    borderWidth: 1,
+    borderColor: THEME.colors.cardBorder,
+  },
+  resolvedBranchText: {
+    color: THEME.colors.textPrimary,
+    fontSize: THEME.typography.sizes.sm,
+    fontWeight: '800',
+  },
+  ratingRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 8,
+    marginTop: 4,
+  },
+  ratingLabel: {
+    color: THEME.colors.textTertiary,
+    fontSize: THEME.typography.sizes.xs,
+  },
+  stars: {
+    color: THEME.colors.accentAmber,
+    fontSize: 14,
+    letterSpacing: 2,
+  },
+  notesBox: {
+    backgroundColor: 'rgba(0, 0, 0, 0.35)',
+    padding: 10,
+    borderRadius: THEME.borderRadius.sm,
+    borderLeftWidth: 2,
+    borderLeftColor: THEME.colors.accentGreen,
+    marginTop: 4,
+  },
+  notesText: {
+    color: THEME.colors.textSecondary,
+    fontSize: 11,
+    fontStyle: 'italic',
+  },
+  resolvedActions: {
+    flexDirection: 'row',
+    gap: 8,
+    marginTop: 8,
+  },
+  editCommitBtn: {
+    backgroundColor: 'rgba(255, 255, 255, 0.08)',
+    paddingVertical: 8,
+    paddingHorizontal: 12,
+    borderRadius: THEME.borderRadius.sm,
+  },
+  editCommitText: {
+    color: THEME.colors.textPrimary,
+    fontSize: 10,
+    fontWeight: '700',
+  },
+  undoCommitBtn: {
+    backgroundColor: 'rgba(244, 63, 94, 0.12)',
+    paddingVertical: 8,
+    paddingHorizontal: 12,
+    borderRadius: THEME.borderRadius.sm,
+  },
+  undoCommitText: {
+    color: THEME.colors.accentPink,
+    fontSize: 10,
+    fontWeight: '700',
+  },
+  modalOverlay: {
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
+    backgroundColor: 'rgba(0, 0, 0, 0.85)',
+    justifyContent: 'center',
+    alignItems: 'center',
+    zIndex: 999,
+    padding: THEME.spacing.lg,
+  },
+  commitModalCard: {
+    width: '100%',
+    maxWidth: 360,
+    gap: THEME.spacing.md,
+    padding: THEME.spacing.lg,
+  },
+  commitModalTitle: {
+    color: THEME.colors.textPrimary,
+    fontSize: THEME.typography.sizes.lg,
+    fontWeight: '900',
+  },
+  commitModalSub: {
+    color: THEME.colors.textSecondary,
+    fontSize: THEME.typography.sizes.xs,
+  },
+  ratingSelectorRow: {
+    gap: 4,
+  },
+  ratingPrompt: {
+    color: THEME.colors.textTertiary,
+    fontSize: 10,
+    fontWeight: '600',
+  },
+  starButtons: {
+    flexDirection: 'row',
+    gap: 6,
+  },
+  starBtnText: {
+    fontSize: 24,
+    color: 'rgba(255, 255, 255, 0.2)',
+  },
+  starBtnActive: {
+    color: THEME.colors.accentAmber,
+  },
+  commitNotesInput: {
+    backgroundColor: 'rgba(255, 255, 255, 0.05)',
+    borderWidth: 1,
+    borderColor: THEME.colors.cardBorder,
+    borderRadius: THEME.borderRadius.md,
+    color: THEME.colors.textPrimary,
+    padding: 10,
+    fontSize: 12,
+    minHeight: 60,
+    textAlignVertical: 'top',
+  },
+  modalBtnRow: {
+    flexDirection: 'row',
+    gap: 8,
+  },
+  modalCancelBtn: {
+    flex: 1,
+    paddingVertical: 12,
+    borderRadius: THEME.borderRadius.sm,
+    backgroundColor: 'rgba(255, 255, 255, 0.08)',
+    alignItems: 'center',
+  },
+  modalCancelText: {
+    color: THEME.colors.textSecondary,
+    fontSize: 11,
+    fontWeight: '700',
+  },
+  modalConfirmBtn: {
+    flex: 2,
+    paddingVertical: 12,
+    borderRadius: THEME.borderRadius.sm,
+    backgroundColor: THEME.colors.accentGreen,
+    alignItems: 'center',
+  },
+  modalConfirmText: {
+    color: '#07090E',
+    fontSize: 11,
+    fontWeight: '900',
+  },
+  toastContainer: {
+    position: 'absolute',
+    top: 20,
+    left: 20,
+    right: 20,
+    backgroundColor: 'rgba(0, 230, 118, 0.95)',
+    paddingVertical: 12,
+    paddingHorizontal: 16,
+    borderRadius: THEME.borderRadius.md,
+    zIndex: 1000,
+    alignItems: 'center',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.3,
+    shadowRadius: 8,
+  },
+  toastText: {
+    color: '#07090E',
+    fontSize: 12,
+    fontWeight: '800',
+    textAlign: 'center',
   },
 });

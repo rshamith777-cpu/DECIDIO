@@ -23,6 +23,7 @@ import { SimulationDetailScreen } from './src/screens/SimulationDetailScreen';
 import { InsightsScreen } from './src/screens/InsightsScreen';
 import { ProfileScreen } from './src/screens/ProfileScreen';
 import { OnboardingScreen } from './src/screens/OnboardingScreen';
+import { UrlAuditScreen } from './src/screens/UrlAuditScreen';
 
 // Modals
 import { PaywallModal } from './src/components/PaywallModal';
@@ -38,6 +39,7 @@ export default function App() {
   const [currentTab, setCurrentTab] = useState<'home' | 'decisions' | 'insights' | 'profile'>('home');
   const [activeDecision, setActiveDecision] = useState<DecisionItem | null>(null);
   const [isCreating, setIsCreating] = useState(false);
+  const [isAuditingUrl, setIsAuditingUrl] = useState(false);
   const [createInitialPrompt, setCreateInitialPrompt] = useState<string>('');
   const [showPaywall, setShowPaywall] = useState(false);
   const [showOnboarding, setShowOnboarding] = useState(false);
@@ -148,6 +150,19 @@ export default function App() {
     );
   }
 
+  // URL Audit View
+  if (isAuditingUrl) {
+    return (
+      <UrlAuditScreen
+        onBack={() => setIsAuditingUrl(false)}
+        onSimulateUrlDecision={(prompt) => {
+          setIsAuditingUrl(false);
+          handleOpenCreate(prompt);
+        }}
+      />
+    );
+  }
+
   // Create Decision Flow View
   if (isCreating) {
     return (
@@ -175,6 +190,7 @@ export default function App() {
             isPro={isPro}
             onSelectDecision={decision => setActiveDecision(decision)}
             onOpenCreate={handleOpenCreate}
+            onOpenUrlAudit={() => setIsAuditingUrl(true)}
             onOpenPaywall={() => setShowPaywall(true)}
             onRefresh={refreshData}
             isRefreshing={isRefreshing}

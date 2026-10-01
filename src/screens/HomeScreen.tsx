@@ -18,6 +18,7 @@ interface HomeScreenProps {
   isPro: boolean;
   onSelectDecision: (decision: DecisionItem) => void;
   onOpenCreate: (initialText?: string) => void;
+  onOpenUrlAudit: () => void;
   onOpenPaywall: () => void;
   onRefresh: () => void;
   isRefreshing: boolean;
@@ -29,6 +30,7 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({
   isPro,
   onSelectDecision,
   onOpenCreate,
+  onOpenUrlAudit,
   onOpenPaywall,
   onRefresh,
   isRefreshing,
@@ -103,6 +105,27 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({
                   <Text style={styles.promptPillText}>{p.label}</Text>
                 </TouchableOpacity>
               ))}
+            </View>
+          </GlassCard>
+        </TouchableOpacity>
+
+        {/* URL Legitimacy & Review Analyzer Card */}
+        <TouchableOpacity activeOpacity={0.85} onPress={onOpenUrlAudit}>
+          <GlassCard highlight glowColor={THEME.colors.secondaryGlow} borderColor={THEME.colors.secondary} style={styles.urlAuditCard}>
+            <View style={styles.urlCardRow}>
+              <View style={styles.urlIconBg}>
+                <Text style={styles.urlIcon}>🔗</Text>
+              </View>
+              <View style={styles.urlCardText}>
+                <View style={styles.urlBadgeRow}>
+                  <Text style={styles.urlBadgeText}>NEW • DECISION INTEL</Text>
+                </View>
+                <Text style={styles.urlCardTitle}>Audit URL Legitimacy & Reviews</Text>
+                <Text style={styles.urlCardDesc}>
+                  Paste any course, gadget, or job offer link to check if it's legit, scam-free, and analyze real reviews before deciding.
+                </Text>
+              </View>
+              <Text style={styles.urlArrow}>→</Text>
             </View>
           </GlassCard>
         </TouchableOpacity>
@@ -299,6 +322,55 @@ const styles = StyleSheet.create({
     color: THEME.colors.textSecondary,
     fontSize: 11,
     fontWeight: '600',
+  },
+  urlAuditCard: {
+    backgroundColor: 'rgba(0, 229, 255, 0.05)',
+    borderColor: 'rgba(0, 229, 255, 0.3)',
+    padding: THEME.spacing.md,
+  },
+  urlCardRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 12,
+  },
+  urlIconBg: {
+    width: 42,
+    height: 42,
+    borderRadius: 21,
+    backgroundColor: 'rgba(0, 229, 255, 0.12)',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  urlIcon: {
+    fontSize: 20,
+  },
+  urlCardText: {
+    flex: 1,
+    gap: 2,
+  },
+  urlBadgeRow: {
+    alignSelf: 'flex-start',
+  },
+  urlBadgeText: {
+    color: THEME.colors.secondary,
+    fontSize: 8,
+    fontWeight: '800',
+    letterSpacing: 1,
+  },
+  urlCardTitle: {
+    color: THEME.colors.textPrimary,
+    fontSize: THEME.typography.sizes.sm,
+    fontWeight: '800',
+  },
+  urlCardDesc: {
+    color: THEME.colors.textSecondary,
+    fontSize: 11,
+    lineHeight: 15,
+  },
+  urlArrow: {
+    color: THEME.colors.secondary,
+    fontSize: 18,
+    fontWeight: 'bold',
   },
   healthSection: {
     gap: THEME.spacing.sm,
