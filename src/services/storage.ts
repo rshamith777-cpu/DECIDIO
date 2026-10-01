@@ -9,7 +9,7 @@ const STORAGE_KEYS = {
   HAS_SEEN_ONBOARDING: '@decidio_onboarding_completed',
 };
 
-const DEFAULT_PROFILE: DecisionProfile = {
+export const DEFAULT_PROFILE: DecisionProfile = {
   name: 'Shamith',
   primaryGoals: ['Career', 'Education', 'Money'],
   weights: {
@@ -19,7 +19,7 @@ const DEFAULT_PROFILE: DecisionProfile = {
     experience: 6,
     riskTolerance: 5,
   },
-  hasCompletedOnboarding: false,
+  hasCompletedOnboarding: true,
 };
 
 export const StorageService = {
@@ -115,9 +115,10 @@ export const StorageService = {
   async hasCompletedOnboarding(): Promise<boolean> {
     try {
       const val = await AsyncStorage.getItem(STORAGE_KEYS.HAS_SEEN_ONBOARDING);
-      return val === 'true';
+      if (val === 'false') return false;
+      return true;
     } catch {
-      return false;
+      return true;
     }
   },
 

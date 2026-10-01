@@ -23,6 +23,7 @@ interface ProfileScreenProps {
   onProToggled: (newProStatus: boolean) => void;
   onOpenPaywall: () => void;
   onResetData: () => void;
+  onOpenOnboarding?: () => void;
 }
 
 export const ProfileScreen: React.FC<ProfileScreenProps> = ({
@@ -32,6 +33,7 @@ export const ProfileScreen: React.FC<ProfileScreenProps> = ({
   onProToggled,
   onOpenPaywall,
   onResetData,
+  onOpenOnboarding,
 }) => {
   const [name, setName] = useState(profile.name);
   const [apiKey, setApiKey] = useState('');
@@ -125,6 +127,25 @@ export const ProfileScreen: React.FC<ProfileScreenProps> = ({
               <Text style={styles.prefLabel}>Default Simulation Horizon</Text>
               <Text style={styles.prefValue}>90 Days</Text>
             </View>
+            {onOpenOnboarding && (
+              <TouchableOpacity
+                style={{
+                  marginTop: 10,
+                  paddingVertical: 10,
+                  alignItems: 'center',
+                  backgroundColor: 'rgba(255,255,255,0.05)',
+                  borderRadius: THEME.borderRadius.sm,
+                  borderWidth: 1,
+                  borderColor: THEME.colors.cardBorder,
+                }}
+                onPress={onOpenOnboarding}
+                activeOpacity={0.8}
+              >
+                <Text style={{ color: THEME.colors.textPrimary, fontSize: 12, fontWeight: '700' }}>
+                  Retune Decision Weights & Arenas →
+                </Text>
+              </TouchableOpacity>
+            )}
           </GlassCard>
         </View>
 

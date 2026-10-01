@@ -11,7 +11,7 @@ import {
 } from 'react-native';
 import { THEME } from './src/constants/theme';
 import { DecisionItem, DecisionProfile } from './src/types';
-import { StorageService } from './src/services/storage';
+import { StorageService, DEFAULT_PROFILE } from './src/services/storage';
 import { revenueCat } from './src/services/revenuecat';
 import { aiEngine } from './src/services/aiEngine';
 
@@ -29,8 +29,8 @@ import { UrlAuditScreen } from './src/screens/UrlAuditScreen';
 import { PaywallModal } from './src/components/PaywallModal';
 
 export default function App() {
-  const [isLoading, setIsLoading] = useState(true);
-  const [profile, setProfile] = useState<DecisionProfile | null>(null);
+  const [isLoading, setIsLoading] = useState(false);
+  const [profile, setProfile] = useState<DecisionProfile>(DEFAULT_PROFILE);
   const [decisions, setDecisions] = useState<DecisionItem[]>([]);
   const [isPro, setIsPro] = useState(false);
   const [isRefreshing, setIsRefreshing] = useState(false);
@@ -58,15 +58,14 @@ export default function App() {
         }
 
         const userProfile = await StorageService.getProfile();
-        setProfile(userProfile);
-
-        const hasOnboarded = await StorageService.hasCompletedOnboarding();
-        if (!hasOnboarded) {
-          setShowOnboarding(true);
+        if (userProfile) {
+          setProfile(userProfile);
         }
 
         const userDecisions = await StorageService.getDecisions();
-        setDecisions(userDecisions);
+        if (userDecisions && userDecisions.length > 0) {
+          setDecisions(userDecisions);
+        }
       } catch (e) {
         console.warn('Initialization error:', e);
       } finally {
@@ -108,7 +107,7 @@ export default function App() {
     setIsLoading(false);
   };
 
-  if (isLoading || !profile) {
+  if (isLoading && !profile) {
     return (
       <View style={styles.loadingContainer}>
         <ActivityIndicator size="large" color={THEME.colors.secondary} />
@@ -222,6 +221,7 @@ export default function App() {
             onProToggled={val => setIsPro(val)}
             onOpenPaywall={() => setShowPaywall(true)}
             onResetData={handleResetData}
+            onOpenOnboarding={() => setShowOnboarding(true)}
           />
         )}
       </View>
@@ -285,10 +285,13 @@ export default function App() {
 const styles = StyleSheet.create({
   mainContainer: {
     flex: 1,
+    height: Platform.OS === 'web' ? ('100vh' as any) : '100%',
+    width: '100%',
     backgroundColor: THEME.colors.background,
   },
   contentArea: {
     flex: 1,
+    width: '100%',
   },
   loadingContainer: {
     flex: 1,
