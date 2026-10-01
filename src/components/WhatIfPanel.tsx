@@ -18,6 +18,7 @@ export const WhatIfPanel: React.FC<WhatIfPanelProps> = ({
   onReset,
 }) => {
   const [hasChanged, setHasChanged] = useState(false);
+  const [initialState] = useState<WhatIfAssumptions>({ ...assumptions });
 
   const updateCost = (delta: number) => {
     const newCost = Math.max(0, assumptions.cost + delta);
@@ -45,25 +46,28 @@ export const WhatIfPanel: React.FC<WhatIfPanelProps> = ({
     <GlassCard elevated highlight style={styles.card}>
       <View style={styles.header}>
         <View style={styles.titleWrap}>
+          <Text style={styles.eyebrow}>ASSUMPTION ENGINE</Text>
           <Text style={styles.title}>Change the Future</Text>
           <Text style={styles.subtitle}>Change the assumptions. See how the scenarios change.</Text>
         </View>
 
-        <TouchableOpacity onPress={handleReset} style={styles.resetBtn}>
-          <Text style={styles.resetText}>Reset</Text>
-        </TouchableOpacity>
+        {hasChanged && (
+          <TouchableOpacity onPress={handleReset} style={styles.resetBtn} activeOpacity={0.8}>
+            <Text style={styles.resetText}>Reset</Text>
+          </TouchableOpacity>
+        )}
       </View>
 
       <View style={styles.controlsList}>
         {/* PRICE CONTROL */}
         <View style={styles.controlRow}>
           <View style={styles.controlInfo}>
-            <Text style={styles.controlLabel}>CAPITAL / PRICE</Text>
+            <Text style={styles.controlLabel}>CAPITAL / BUDGET</Text>
             <Text style={styles.controlValue}>{currency}{Math.round(assumptions.cost).toLocaleString()}</Text>
           </View>
           <View style={styles.stepperGroup}>
             <TouchableOpacity style={styles.stepBtn} onPress={() => updateCost(-1000)}>
-              <Text style={styles.stepBtnText}>− ₹1k</Text>
+              <Text style={styles.stepBtnText}>− 1k</Text>
             </TouchableOpacity>
             <TouchableOpacity style={styles.stepBtn} onPress={() => updateCost(-500)}>
               <Text style={styles.stepBtnText}>−</Text>
@@ -72,7 +76,7 @@ export const WhatIfPanel: React.FC<WhatIfPanelProps> = ({
               <Text style={styles.stepBtnText}>+</Text>
             </TouchableOpacity>
             <TouchableOpacity style={styles.stepBtn} onPress={() => updateCost(1000)}>
-              <Text style={styles.stepBtnText}>+ ₹1k</Text>
+              <Text style={styles.stepBtnText}>+ 1k</Text>
             </TouchableOpacity>
           </View>
         </View>
@@ -80,8 +84,8 @@ export const WhatIfPanel: React.FC<WhatIfPanelProps> = ({
         {/* TIME CONTROL */}
         <View style={styles.controlRow}>
           <View style={styles.controlInfo}>
-            <Text style={styles.controlLabel}>WEEKLY TIME</Text>
-            <Text style={[styles.controlValue, { color: THEME.colors.secondary }]}>
+            <Text style={styles.controlLabel}>TIME AVAILABLE</Text>
+            <Text style={[styles.controlValue, { color: THEME.colors.accentCyan }]}>
               {assumptions.hoursPerWeek}h / week
             </Text>
           </View>
@@ -104,7 +108,7 @@ export const WhatIfPanel: React.FC<WhatIfPanelProps> = ({
         {/* HORIZON CONTROL */}
         <View style={styles.horizonBlock}>
           <View style={styles.horizonHeader}>
-            <Text style={styles.controlLabel}>EVALUATION HORIZON</Text>
+            <Text style={styles.controlLabel}>DECISION DEADLINE / HORIZON</Text>
             <Text style={styles.horizonValueText}>{assumptions.horizonDays} days</Text>
           </View>
           <View style={styles.pillsRow}>
@@ -116,6 +120,7 @@ export const WhatIfPanel: React.FC<WhatIfPanelProps> = ({
                   assumptions.horizonDays === days && styles.horizonPillActive,
                 ]}
                 onPress={() => updateHorizon(days)}
+                activeOpacity={0.8}
               >
                 <Text
                   style={[
@@ -131,11 +136,34 @@ export const WhatIfPanel: React.FC<WhatIfPanelProps> = ({
         </View>
       </View>
 
-      {/* Recalculation Live Status */}
+      {/* Before vs After Comparison Box */}
+      {hasChanged && (
+        <View style={styles.comparisonBox}>
+          <Text style={styles.comparisonTitle}>SCENARIO RECALCULATED: BEFORE VS AFTER</Text>
+          <View style={styles.comparisonRow}>
+            <View style={styles.compCol}>
+              <Text style={styles.compTag}>ORIGINAL</Text>
+              <Text style={styles.compVal}>{currency}{Math.round(initialState.cost).toLocaleString()} · {initialState.hoursPerWeek}h/wk</Text>
+            </View>
+            <Text style={styles.compArrow}>→</Text>
+            <View style={styles.compCol}>
+              <Text style={[styles.compTag, { color: THEME.colors.accentGreen }]}>NEW ASSUMPTION</Text>
+              <Text style={[styles.compVal, { color: THEME.colors.textPrimary }]}>
+                {currency}{Math.round(assumptions.cost).toLocaleString()} · {assumptions.hoursPerWeek}h/wk
+              </Text>
+            </View>
+          </View>
+          <Text style={styles.comparisonNote}>
+            All 3 future branches and trade-offs adjust based on these new constraints.
+          </Text>
+        </View>
+      )}
+
+      {/* Recalculation Status Footer */}
       <View style={styles.statusFooter}>
         <View style={[styles.statusDot, hasChanged && styles.statusDotRecalculated]} />
         <Text style={styles.statusText}>
-          {hasChanged ? 'Scenario recalculated — Impact & DNA updated' : 'Drag or adjust values to test alternatives'}
+          {hasChanged ? 'Recalculated live from revised inputs' : 'Adjust values above to simulate alternative assumptions'}
         </Text>
       </View>
     </GlassCard>
@@ -150,11 +178,17 @@ const styles = StyleSheet.create({
   header: {
     flexDirection: 'row',
     justifyContent: 'space-between',
-    alignItems: 'baseline',
+    alignItems: 'flex-start',
   },
   titleWrap: {
     gap: 2,
     flex: 1,
+  },
+  eyebrow: {
+    color: THEME.colors.textTertiary,
+    fontSize: 9,
+    fontWeight: '800',
+    letterSpacing: 1.2,
   },
   title: {
     color: THEME.colors.textPrimary,
@@ -162,12 +196,15 @@ const styles = StyleSheet.create({
     fontWeight: '800',
   },
   subtitle: {
-    color: THEME.colors.textTertiary,
+    color: THEME.colors.textSecondary,
     fontSize: 11,
+    marginTop: 2,
   },
   resetBtn: {
-    backgroundColor: 'rgba(255, 255, 255, 0.05)',
-    paddingHorizontal: 10,
+    backgroundColor: THEME.colors.surface,
+    borderWidth: 1,
+    borderColor: THEME.colors.cardBorder,
+    paddingHorizontal: 12,
     paddingVertical: 5,
     borderRadius: THEME.borderRadius.sm,
   },
@@ -204,13 +241,13 @@ const styles = StyleSheet.create({
     gap: 6,
   },
   stepBtn: {
-    backgroundColor: 'rgba(255, 255, 255, 0.05)',
+    backgroundColor: THEME.colors.surface,
     borderWidth: 1,
     borderColor: THEME.colors.cardBorder,
-    paddingHorizontal: 8,
+    paddingHorizontal: 10,
     paddingVertical: 6,
     borderRadius: THEME.borderRadius.sm,
-    minWidth: 32,
+    minWidth: 34,
     alignItems: 'center',
   },
   stepBtnText: {
@@ -237,7 +274,7 @@ const styles = StyleSheet.create({
   },
   horizonPill: {
     flex: 1,
-    backgroundColor: 'rgba(255, 255, 255, 0.04)',
+    backgroundColor: THEME.colors.surface,
     borderWidth: 1,
     borderColor: THEME.colors.cardBorder,
     paddingVertical: 8,
@@ -245,8 +282,8 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   horizonPillActive: {
-    backgroundColor: THEME.colors.secondary,
-    borderColor: THEME.colors.secondary,
+    backgroundColor: THEME.colors.elevatedSurface,
+    borderColor: THEME.colors.textPrimary,
   },
   horizonPillText: {
     color: THEME.colors.textTertiary,
@@ -254,8 +291,51 @@ const styles = StyleSheet.create({
     fontWeight: '700',
   },
   horizonPillTextActive: {
-    color: '#080909',
-    fontWeight: 'bold',
+    color: THEME.colors.textPrimary,
+    fontWeight: '800',
+  },
+  comparisonBox: {
+    backgroundColor: THEME.colors.surface,
+    borderWidth: 1,
+    borderColor: 'rgba(0, 230, 118, 0.3)',
+    borderRadius: THEME.borderRadius.sm,
+    padding: THEME.spacing.md,
+    gap: 6,
+  },
+  comparisonTitle: {
+    color: THEME.colors.accentGreen,
+    fontSize: 9,
+    fontWeight: '800',
+    letterSpacing: 0.8,
+  },
+  comparisonRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 12,
+  },
+  compCol: {
+    flex: 1,
+    gap: 2,
+  },
+  compTag: {
+    color: THEME.colors.textTertiary,
+    fontSize: 8,
+    fontWeight: '700',
+  },
+  compVal: {
+    color: THEME.colors.textSecondary,
+    fontSize: 11,
+    fontWeight: '700',
+  },
+  compArrow: {
+    color: THEME.colors.textTertiary,
+    fontSize: 14,
+  },
+  comparisonNote: {
+    color: THEME.colors.textTertiary,
+    fontSize: 10,
+    fontStyle: 'italic',
+    lineHeight: 14,
   },
   statusFooter: {
     flexDirection: 'row',
@@ -277,6 +357,5 @@ const styles = StyleSheet.create({
   statusText: {
     color: THEME.colors.textTertiary,
     fontSize: 10,
-    fontStyle: 'italic',
   },
 });

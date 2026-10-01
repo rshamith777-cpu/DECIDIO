@@ -53,12 +53,12 @@ export const DecisionDNACard: React.FC<DecisionDNACardProps> = ({ dna }) => {
 
       {/* 6 Dimensions Bars */}
       <View style={styles.dimensionsList}>
-        <DimensionBar label="Risk Exposure" score={dna.riskScore} color={THEME.colors.accentRose} />
-        <DimensionBar label="Capital Required" score={dna.costScore} color={THEME.colors.accentAmber} />
-        <DimensionBar label="Time Intensity" score={dna.timeScore} color={THEME.colors.secondary} />
-        <DimensionBar label="Career Upside" score={dna.careerImpactScore} color={THEME.colors.accentGreen} />
-        <DimensionBar label="Reversibility" score={dna.reversibilityScore} color={THEME.colors.primaryLight} />
-        <DimensionBar label="Confidence Level" score={dna.confidenceScore} color={THEME.colors.textPrimary} />
+        <DimensionBar label="Risk Preference" score={dna.riskScore} color={THEME.colors.accentRose} />
+        <DimensionBar label="Time Preference" score={dna.timeScore} color={THEME.colors.accentCyan} />
+        <DimensionBar label="Money Sensitivity" score={dna.costScore} color={THEME.colors.accentAmber} />
+        <DimensionBar label="Certainty Preference" score={dna.confidenceScore} color={THEME.colors.textPrimary} />
+        <DimensionBar label="Exploration Bias" score={dna.careerImpactScore} color={THEME.colors.accentGreen} />
+        <DimensionBar label="Reversibility" score={dna.reversibilityScore} color={THEME.colors.accentViolet} />
       </View>
     </GlassCard>
   );

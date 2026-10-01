@@ -69,10 +69,10 @@ export const InsightsScreen: React.FC<InsightsScreenProps> = ({
       <ScrollView contentContainerStyle={styles.container}>
         {/* Header */}
         <View style={styles.header}>
-          <Text style={styles.eyebrow}>AI MEMORY</Text>
+          <Text style={styles.eyebrow}>PERSONAL INTELLIGENCE</Text>
           <Text style={styles.title}>Decision Memory</Text>
           <Text style={styles.subtitle}>
-            DECIDIO gets more useful as you make more decisions.
+            What kind of decision-maker are you becoming?
           </Text>
         </View>
 
@@ -115,9 +115,9 @@ export const InsightsScreen: React.FC<InsightsScreenProps> = ({
 
           {memoryLearnings.length === 0 ? (
             <GlassCard style={styles.emptyMemoryCard}>
-              <Text style={styles.emptyMemoryTitle}>No decisions recorded yet.</Text>
+              <Text style={styles.emptyMemoryTitle}>Your patterns will appear here as DECIDIO learns from your decisions.</Text>
               <Text style={styles.emptyMemoryText}>
-                Simulate your first decision from the Home tab to begin building your personal decision intelligence profile.
+                Complete and resolve more decisions to uncover your subconscious biases, time estimations, and conviction patterns.
               </Text>
             </GlassCard>
           ) : (

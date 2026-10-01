@@ -98,8 +98,8 @@ export const DecisionsJournalScreen: React.FC<DecisionsJournalScreenProps> = ({
         <View style={styles.list}>
           {filtered.length === 0 ? (
             <View style={styles.emptyContainer}>
-              <Text style={styles.emptyTitle}>No decisions yet.</Text>
-              <Text style={styles.emptyDesc}>Your first decision is only a sentence away.</Text>
+              <Text style={styles.emptyTitle}>Nothing decided yet.</Text>
+              <Text style={styles.emptyDesc}>Your decision story starts here. Start with one decision and DECIDIO will map the possibilities.</Text>
               <TouchableOpacity style={styles.emptyActionBtn} onPress={onOpenCreate} activeOpacity={0.85}>
                 <Text style={styles.emptyActionBtnText}>+ Create Your First Decision</Text>
               </TouchableOpacity>
@@ -113,7 +113,7 @@ export const DecisionsJournalScreen: React.FC<DecisionsJournalScreenProps> = ({
               });
 
               // Branch determination
-              let branchLabel = 'SIMULATING';
+              let branchLabel = 'ACTIVE SIMULATION';
               let branchColor = THEME.colors.accentCyan;
               if (item.status === 'resolved' && item.resolvedOutcome) {
                 if (item.resolvedOutcome.chosenOption === 'optionA') {
@@ -148,6 +148,28 @@ export const DecisionsJournalScreen: React.FC<DecisionsJournalScreenProps> = ({
                     <Text style={styles.metaLine}>
                       {item.category} · {item.currency}{Math.round(item.currentCost).toLocaleString()}
                     </Text>
+
+                    {/* Original reasoning / trade-off */}
+                    <Text style={styles.reasoningText} numberOfLines={2}>
+                      Trade-off: {item.tradeOff.keyTradeoff}
+                    </Text>
+
+                    {/* Reflection & Rating if resolved */}
+                    {item.status === 'resolved' && item.resolvedOutcome && (
+                      <View style={styles.reflectionSnippet}>
+                        <View style={styles.reflectionHeaderRow}>
+                          <Text style={styles.reflectionTag}>REFLECTION</Text>
+                          {item.resolvedOutcome.rating > 0 && (
+                            <Text style={styles.ratingStars}>
+                              {'★'.repeat(item.resolvedOutcome.rating)}
+                            </Text>
+                          )}
+                        </View>
+                        <Text style={styles.reflectionBody} numberOfLines={2}>
+                          "{item.resolvedOutcome.notes}"
+                        </Text>
+                      </View>
+                    )}
 
                     {/* Bottom Row: Branch pill & Confidence */}
                     <View style={styles.cardBottomRow}>
@@ -318,6 +340,41 @@ const styles = StyleSheet.create({
     color: THEME.colors.textSecondary,
     fontSize: THEME.typography.sizes.xs,
     fontWeight: '600',
+  },
+  reasoningText: {
+    color: THEME.colors.textTertiary,
+    fontSize: 11,
+    lineHeight: 16,
+  },
+  reflectionSnippet: {
+    backgroundColor: THEME.colors.surface,
+    borderLeftWidth: 2,
+    borderLeftColor: THEME.colors.accentGreen,
+    padding: 8,
+    borderRadius: THEME.borderRadius.xs,
+    gap: 3,
+  },
+  reflectionHeaderRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+  },
+  reflectionTag: {
+    color: THEME.colors.accentGreen,
+    fontSize: 8,
+    fontWeight: '800',
+    letterSpacing: 0.8,
+  },
+  ratingStars: {
+    color: THEME.colors.accentAmber,
+    fontSize: 10,
+    letterSpacing: 1,
+  },
+  reflectionBody: {
+    color: THEME.colors.textPrimary,
+    fontSize: 11,
+    fontStyle: 'italic',
+    lineHeight: 15,
   },
   cardBottomRow: {
     flexDirection: 'row',

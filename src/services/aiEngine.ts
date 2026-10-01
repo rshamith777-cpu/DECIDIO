@@ -95,73 +95,19 @@ export class DecisionSimulatorEngine {
     title = title.replace(/^(should i|shall i|can i|thinking of|thinking about)\s+/i, '');
     title = title.charAt(0).toUpperCase() + title.slice(1);
 
-    // 5. Adaptive Questions
-    const adaptiveQuestions: AdaptiveQuestion[] = [];
-    if (category === 'Education') {
-      adaptiveQuestions.push({
-        id: 'current_level',
-        question: 'What is your current experience level in this topic?',
-        options: ['Beginner (Zero experience)', 'Intermediate (Have basics)', 'Advanced (Looking for depth)'],
-      });
-      adaptiveQuestions.push({
-        id: 'target_goal',
-        question: "What is your primary goal with this learning?",
-        options: ['Land a Job / Internship', 'Build a Portfolio Project', 'College / Academic Requirement', 'Personal Curiosity'],
-      });
-      adaptiveQuestions.push({
-        id: 'time_buffer',
-        question: 'How realistic is dedicating 8 hours every week?',
-        options: ['Very realistic (I have free slots)', 'Tight (Will need to sacrifice sleep/weekends)', 'Uncertain'],
-      });
-    } else if (category === 'Career') {
-      adaptiveQuestions.push({
-        id: 'career_priority',
-        question: 'What matters more for this career phase?',
-        options: ['Immediate Stipend / Salary', 'High-Tier Brand & Mentorship', 'High-growth In-demand Skills'],
-      });
-      adaptiveQuestions.push({
-        id: 'relocation_readiness',
-        question: 'Does this role require relocation or significant commute?',
-        options: ['Yes, requires relocating', 'Commute is heavy (>1.5 hr/day)', 'Remote / No hassle'],
-      });
-      adaptiveQuestions.push({
-        id: 'current_safety_net',
-        question: 'Do you have backup offers or ongoing studies?',
-        options: ['Have multiple options', 'Current college obligations', 'This is my best offer'],
-      });
-    } else if (category === 'Purchases') {
-      adaptiveQuestions.push({
-        id: 'purchase_necessity',
-        question: 'Is this purchase a direct productivity tool or comfort upgrade?',
-        options: ['Direct tool for work/earning', 'Quality of life & comfort upgrade', 'Mainly want/desire'],
-      });
-      adaptiveQuestions.push({
-        id: 'budget_impact',
-        question: 'How does this cost affect your current savings/liquidity?',
-        options: ['Minimal (< 10% of liquidity)', 'Moderate (Takes 1-2 months savings)', 'Tight (Requires EMI/Loan)'],
-      });
-      adaptiveQuestions.push({
-        id: 'reversibility',
-        question: 'Can you resell or return this item if needed?',
-        options: ['High resale value', 'Standard 14-day return window', 'Difficult to reverse / sink cost'],
-      });
-    } else {
-      adaptiveQuestions.push({
-        id: 'risk_assessment',
-        question: 'What is the worst-case consequence if this fails?',
-        options: ['Lose money only', 'Lose valuable time & delay roadmap', 'Minimal downside'],
-      });
-      adaptiveQuestions.push({
-        id: 'goal_clarity',
-        question: 'How confident are you in this specific path?',
-        options: ['Very clear roadmap', 'Somewhat curious to explore', 'Feeling FOMO / peer pressure'],
-      });
-      adaptiveQuestions.push({
-        id: 'time_frame',
-        question: 'When do you expect to see the return on this choice?',
-        options: ['Within 30 days', '3 to 6 months', 'Long-term (1+ years)'],
-      });
-    }
+    // 5. Adaptive Context Questions (Section 8: 2 crisp questions)
+    const adaptiveQuestions: AdaptiveQuestion[] = [
+      {
+        id: 'priority_focus',
+        question: 'What matters most here?',
+        options: ['Money', 'Time', 'Career', 'Learning', 'Freedom', 'Stability'],
+      },
+      {
+        id: 'decision_urgency',
+        question: 'How soon do you need to decide?',
+        options: ['Today', 'This week', 'This month', 'No deadline'],
+      },
+    ];
 
     return {
       title,

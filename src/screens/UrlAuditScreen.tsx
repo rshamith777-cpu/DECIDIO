@@ -75,14 +75,14 @@ export const UrlAuditScreen: React.FC<UrlAuditScreenProps> = ({
 
         {/* Header */}
         <View style={styles.header}>
-          <Text style={styles.headline}>Paste Any URL to Audit</Text>
+          <Text style={styles.headline}>Before You Commit, Check the Link.</Text>
           <Text style={styles.subheadline}>
-            Before you spend money or commit time, Decidio checks if the course, product, or offer is legit and synthesizes real buyer reviews.
+            Paste a course, product, job offer, or website and inspect the detected signals around it.
           </Text>
         </View>
 
         {/* Input Box */}
-        <GlassCard highlight glowColor={THEME.colors.secondaryGlow} borderColor={THEME.colors.secondary}>
+        <GlassCard highlight borderColor={THEME.colors.accentCyan}>
           <View style={styles.inputRow}>
             <TextInput
               style={styles.input}
@@ -104,11 +104,12 @@ export const UrlAuditScreen: React.FC<UrlAuditScreenProps> = ({
             style={[styles.scanBtn, !urlInput.trim() && styles.disabledBtn]}
             onPress={() => handleScan()}
             disabled={!urlInput.trim() || isScanning}
+            activeOpacity={0.85}
           >
             {isScanning ? (
-              <ActivityIndicator color="#07090E" />
+              <ActivityIndicator color={THEME.colors.background} />
             ) : (
-              <Text style={styles.scanBtnText}>Verify Legitimacy & Reviews 🔍</Text>
+              <Text style={styles.scanBtnText}>Audit This URL →</Text>
             )}
           </TouchableOpacity>
 
@@ -225,22 +226,29 @@ export const UrlAuditScreen: React.FC<UrlAuditScreenProps> = ({
             </GlassCard>
 
             {/* Action: Simulate this decision in Decidio */}
-            <TouchableOpacity
-              style={styles.simulateUrlBtn}
-              onPress={() => {
-                const prompt = `Should I get ${auditResult.title} from ${auditResult.domain} for ${auditResult.currency}${auditResult.estimatedCost}?`;
-                onSimulateUrlDecision(
-                  prompt,
-                  auditResult.estimatedCost,
-                  auditResult.currency,
-                  auditResult.category === 'Course' ? 'Education' : auditResult.category === 'Product' ? 'Purchases' : 'Career'
-                );
-              }}
-            >
-              <Text style={styles.simulateUrlBtnText}>
-                Simulate 3 Futures for this URL 🔮
+            <GlassCard elevated style={styles.bridgeCard}>
+              <Text style={styles.bridgeTitle}>Beyond the Link</Text>
+              <Text style={styles.bridgeBody}>
+                The question isn't only whether this looks legitimate. The question is what happens if you commit.
               </Text>
-            </TouchableOpacity>
+              <TouchableOpacity
+                style={styles.simulateUrlBtn}
+                onPress={() => {
+                  const prompt = `Should I get ${auditResult.title} from ${auditResult.domain} for ${auditResult.currency}${auditResult.estimatedCost}?`;
+                  onSimulateUrlDecision(
+                    prompt,
+                    auditResult.estimatedCost,
+                    auditResult.currency,
+                    auditResult.category === 'Course' ? 'Education' : auditResult.category === 'Product' ? 'Purchases' : 'Career'
+                  );
+                }}
+                activeOpacity={0.85}
+              >
+                <Text style={styles.simulateUrlBtnText}>
+                  Simulate 3 Futures →
+                </Text>
+              </TouchableOpacity>
+            </GlassCard>
           </View>
         )}
       </ScrollView>
@@ -526,20 +534,31 @@ const styles = StyleSheet.create({
     lineHeight: 16,
     paddingLeft: 4,
   },
+  bridgeCard: {
+    padding: THEME.spacing.lg,
+    gap: THEME.spacing.sm,
+  },
+  bridgeTitle: {
+    color: THEME.colors.textPrimary,
+    fontSize: THEME.typography.sizes.base,
+    fontWeight: '800',
+  },
+  bridgeBody: {
+    color: THEME.colors.textSecondary,
+    fontSize: THEME.typography.sizes.xs,
+    lineHeight: 18,
+    marginBottom: 6,
+  },
   simulateUrlBtn: {
-    backgroundColor: THEME.colors.primary,
+    backgroundColor: THEME.colors.primaryText,
     paddingVertical: 14,
-    borderRadius: THEME.borderRadius.md,
+    borderRadius: THEME.borderRadius.sm,
     alignItems: 'center',
-    shadowColor: THEME.colors.primary,
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.4,
-    shadowRadius: 10,
   },
   simulateUrlBtnText: {
-    color: '#FFFFFF',
-    fontSize: THEME.typography.sizes.sm,
-    fontWeight: '800',
+    color: THEME.colors.background,
+    fontSize: THEME.typography.sizes.xs,
+    fontWeight: '900',
     letterSpacing: 0.5,
   },
 });

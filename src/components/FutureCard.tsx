@@ -18,21 +18,21 @@ export const FutureCard: React.FC<FutureCardProps> = ({ scenario, isActive = tru
         return {
           code: 'OPTION A',
           name: 'COMMIT',
-          tagline: 'Take action now under current roadmap',
+          tagline: 'What happens if you choose this now?',
           accent: THEME.colors.scenarioA,
         };
       case 'optionB':
         return {
           code: 'OPTION B',
           name: 'WAIT',
-          tagline: 'Gather more evidence before committing capital',
+          tagline: 'What happens if you delay the decision?',
           accent: THEME.colors.scenarioB,
         };
       case 'optionC':
         return {
           code: 'OPTION C',
           name: 'SKIP',
-          tagline: 'Redirect time, capital, and energy elsewhere',
+          tagline: 'What happens if you walk away?',
           accent: THEME.colors.scenarioC,
         };
     }

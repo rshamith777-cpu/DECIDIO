@@ -218,7 +218,7 @@ export const SimulationDetailScreen: React.FC<SimulationDetailScreenProps> = ({
             >
               <Text style={[styles.futureTabCode, { color: THEME.colors.scenarioA }]}>A · COMMIT</Text>
               <Text style={[styles.futureTabText, activeFutureTab === 'optionA' && styles.futureTabTextActive]}>
-                Take action now
+                Choose now
               </Text>
             </TouchableOpacity>
 
@@ -232,7 +232,7 @@ export const SimulationDetailScreen: React.FC<SimulationDetailScreenProps> = ({
             >
               <Text style={[styles.futureTabCode, { color: THEME.colors.scenarioB }]}>B · WAIT</Text>
               <Text style={[styles.futureTabText, activeFutureTab === 'optionB' && styles.futureTabTextActive]}>
-                Gather evidence
+                Delay choice
               </Text>
             </TouchableOpacity>
 
@@ -246,7 +246,7 @@ export const SimulationDetailScreen: React.FC<SimulationDetailScreenProps> = ({
             >
               <Text style={[styles.futureTabCode, { color: THEME.colors.scenarioC }]}>C · SKIP</Text>
               <Text style={[styles.futureTabText, activeFutureTab === 'optionC' && styles.futureTabTextActive]}>
-                Redirect energy
+                Walk away
               </Text>
             </TouchableOpacity>
           </View>

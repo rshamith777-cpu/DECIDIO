@@ -219,10 +219,10 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({
           )}
         </View>
 
-        {/* Decision Memory & What DECIDIO Has Learned */}
+        {/* Decision Memory */}
         <View style={styles.section}>
           <Text style={styles.sectionHeading}>Decision Memory</Text>
-          <Text style={styles.sectionSub}>What DECIDIO has learned from your choices</Text>
+          <Text style={styles.sectionSub}>Macro telemetry across your simulated choices</Text>
 
           {/* Macro Stats */}
           <View style={styles.memoryStatsRow}>
@@ -245,19 +245,31 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({
               <Text style={styles.memoryStatLabel}>Active</Text>
             </View>
           </View>
+        </View>
 
-          {/* Detected Tendencies */}
-          <GlassCard style={styles.insightsCard}>
-            <Text style={styles.insightsTitle}>DETECTED TENDENCIES</Text>
-            <View style={styles.insightsList}>
-              {insights.patterns.slice(0, 3).map((pat, idx) => (
-                <View key={idx} style={styles.patternRow}>
-                  <Text style={styles.patternBullet}>—</Text>
-                  <Text style={styles.patternText}>{pat}</Text>
-                </View>
-              ))}
-            </View>
-          </GlassCard>
+        {/* Insights: What DECIDIO Has Learned */}
+        <View style={styles.section}>
+          <Text style={styles.sectionHeading}>What DECIDIO Has Learned</Text>
+          <Text style={styles.sectionSub}>Learned behavioral patterns and decision tendencies</Text>
+
+          {decisions.length === 0 ? (
+            <GlassCard style={styles.emptyDnaCard}>
+              <Text style={styles.emptyDnaTitle}>Your Decision DNA is still forming.</Text>
+              <Text style={styles.emptyDnaSub}>Complete more decisions to reveal your patterns.</Text>
+            </GlassCard>
+          ) : (
+            <GlassCard style={styles.insightsCard}>
+              <Text style={styles.insightsTitle}>DETECTED PATTERNS</Text>
+              <View style={styles.insightsList}>
+                {insights.patterns.slice(0, 3).map((pat, idx) => (
+                  <View key={idx} style={styles.patternRow}>
+                    <Text style={styles.patternBullet}>—</Text>
+                    <Text style={styles.patternText}>{pat}</Text>
+                  </View>
+                ))}
+              </View>
+            </GlassCard>
+          )}
         </View>
 
         {/* Calm Footer Quote */}
@@ -648,6 +660,22 @@ const styles = StyleSheet.create({
     color: THEME.colors.textSecondary,
     fontSize: 11,
     lineHeight: 16,
+  },
+  emptyDnaCard: {
+    padding: THEME.spacing.lg,
+    gap: 4,
+    alignItems: 'center',
+  },
+  emptyDnaTitle: {
+    color: THEME.colors.textPrimary,
+    fontSize: THEME.typography.sizes.sm,
+    fontWeight: '700',
+    textAlign: 'center',
+  },
+  emptyDnaSub: {
+    color: THEME.colors.textTertiary,
+    fontSize: THEME.typography.sizes.xs,
+    textAlign: 'center',
   },
   closingSection: {
     alignItems: 'center',

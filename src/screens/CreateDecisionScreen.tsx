@@ -25,20 +25,19 @@ interface CreateDecisionScreenProps {
 }
 
 const REFINED_SIMULATION_STEPS = [
-  'UNDERSTANDING DECISION',
-  'EXTRACTING CONSTRAINTS',
-  'BUILDING POSSIBLE FUTURES',
-  'CALCULATING TRADE-OFFS',
-  'GENERATING DECISION DNA',
+  'Understanding your decision',
+  'Mapping the trade-offs',
+  'Exploring possible futures',
+  'Building your decision map',
 ];
 
 const PRESET_CHIPS = [
-  { label: 'Buy something', text: 'Should I buy a ₹74,999 MacBook Air M3 or keep using my old laptop?' },
-  { label: 'Take an internship', text: 'Got an internship offer in Bangalore for ₹25k/month. Should I take it?' },
+  { label: 'Buy a laptop', text: 'I’m thinking about buying a new laptop.' },
+  { label: 'Join a bootcamp', text: 'I’m considering joining this bootcamp.' },
+  { label: 'Take an internship', text: 'I’m deciding whether to accept this internship.' },
+  { label: 'Move to Bangalore', text: 'I’m thinking about moving to Bangalore.' },
   { label: 'Choose a course', text: 'Should I spend ₹4,999 on this machine learning course?' },
-  { label: 'Move cities', text: 'Should I move to Bengaluru for a hybrid tech role?' },
-  { label: 'Change jobs', text: 'Should I quit my current corporate role to join an early-stage startup?' },
-  { label: 'Start a project', text: 'Should I commit 15 hours a week to build my own open source SaaS project?' },
+  { label: 'Start a project', text: 'Should I commit 15 hours a week to build my own project?' },
 ];
 
 export const CreateDecisionScreen: React.FC<CreateDecisionScreenProps> = ({
@@ -136,7 +135,7 @@ export const CreateDecisionScreen: React.FC<CreateDecisionScreenProps> = ({
                 numberOfLines={4}
                 value={inputText}
                 onChangeText={setInputText}
-                placeholder="Describe it naturally..."
+                placeholder="I’m thinking about..."
                 placeholderTextColor={THEME.colors.textTertiary}
                 autoFocus
               />
@@ -245,7 +244,7 @@ export const CreateDecisionScreen: React.FC<CreateDecisionScreenProps> = ({
             </View>
 
             <TouchableOpacity style={styles.primaryActionBtn} onPress={handleSimulate} activeOpacity={0.85}>
-              <Text style={styles.primaryActionText}>Simulate Futures →</Text>
+              <Text style={styles.primaryActionText}>Simulate My Futures →</Text>
             </TouchableOpacity>
           </View>
         )}
